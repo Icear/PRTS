@@ -15,11 +15,11 @@ def test_level_selection(target_image_level_selection):
     # 全局阈值
     difference = cv.absdiff(cut_image, template_image)
     result = not np.any(difference)
-    print(result)
-    cv.imshow('cut_image', cut_image)
-    cv.imshow('template_image', template_image)
-    cv.imshow('difference', difference)
-    cv.waitKey(0)
+    # print(result)
+    # cv.imshow('cut_image', cut_image)
+    # cv.imshow('template_image', template_image)
+    # cv.imshow('difference', difference)
+    # cv.waitKey(0)
     return result
 
 
@@ -35,11 +35,12 @@ def test_team_up(target_image_team_up):
     # 全局阈值
     difference = cv.absdiff(cut_image, template_image)
     result = not np.any(difference)
-    print(result)
-    cv.imshow('cut_image', cut_image)
-    cv.imshow('template_image', template_image)
-    cv.imshow('difference', difference)
-    cv.waitKey(0)
+    # print(result)
+    # cv.imshow('cut_image', cut_image)
+    # cv.imshow('template_image', template_image)
+    # cv.imshow('difference', difference)
+    # cv.waitKey(0)
+    return result
 
 
 def test_battle_settlement(target_image_battle_settlement):
@@ -64,35 +65,49 @@ def test_battle_settlement(target_image_battle_settlement):
     # print(mean)
     # print(std_dev)
     result = mean[0][0] < 1
-    print(result)
-    cv.imshow('cut_image', cut_image)
-    cv.imshow('template_image', template_image)
-    cv.imshow('difference', difference)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
+    # print(result)
+    # cv.imshow('cut_image', cut_image)
+    # cv.imshow('template_image', template_image)
+    # cv.imshow('difference', difference)
+    # cv.waitKey(0)
+    # cv.destroyAllWindows()
+    return result
 
 
 if __name__ == '__main__':
-    target_image_level_selection = cv.imread(
-        os.path.join(os.getcwd(), 'test_case', 'log-2020-1-4-13-24-56-enter_company_interface(1648,906).png'),
-        cv.IMREAD_GRAYSCALE)
-    target_image_team_up = cv.imread(
-        os.path.join(os.getcwd(), 'test_case', 'log-2020-1-4-13-25-5-enter_game(1616,585).png'), cv.IMREAD_GRAYSCALE)
-    target_image_battle_settlement = cv.imread(
-        os.path.join(os.getcwd(), 'test_case', 'log-2020-1-4-13-26-51-leave_summarize_interface(1544,592).png'),
-        cv.IMREAD_GRAYSCALE)
-    target_image_fighting = cv.imread(
-        os.path.join(os.getcwd(), 'test_case', 'MuMu20200105200255.png'),
-        cv.IMREAD_GRAYSCALE)
-    # test_level_selection(target_image_level_selection)
-    # test_level_selection(target_image_team_up)
-    # test_level_selection(target_image_battle_settlement)
-    # test_level_selection(target_image_fighting)
-    # test_team_up(target_image_level_selection)
-    # test_team_up(target_image_team_up)
-    # test_team_up(target_image_battle_settlement)
-    # test_team_up(target_image_fighting)
-    test_battle_settlement(target_image_level_selection)
-    test_battle_settlement(target_image_team_up)
-    test_battle_settlement(target_image_battle_settlement)
-    test_battle_settlement(target_image_fighting)
+
+    # 把test_case下的所有图片读出来，丢给目标函数检查，输出每一次的检查结果和被检查的文件名
+
+    target_images = {}
+
+    for test_file in os.listdir(os.path.join(os.getcwd(), 'test_case')):
+        image = cv.imread(
+            os.path.join(os.getcwd(), 'test_case', test_file), cv.IMREAD_GRAYSCALE
+        )
+        target_images[test_file] = image
+    print(f"read {len(target_images)} test cases")
+
+    success_count = 0
+    fail_count = 0
+
+    test_target = 'battle_settlement'
+    test_method = {
+        "level_selection": test_level_selection,
+        "team_up": test_team_up,
+        "battle_settlement": test_battle_settlement
+    }
+    test_string = {
+        "level_selection": "enter_team_up",
+        "team_up": "enter_game",
+        "battle_settlement": "leave_settlement"
+    }
+
+    for case_name, image in target_images.items():
+        test_result = test_method[test_target](image)
+        actual = test_string[test_target] in case_name
+        if test_result == actual:
+            success_count += 1
+        else:
+            fail_count += 1
+            print(f"failed test case: {case_name}, wanted result is {actual}, but get {test_result}")
+    print(f"test finished, success: {success_count}, fail: {fail_count}")

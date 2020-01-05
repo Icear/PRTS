@@ -10,7 +10,6 @@ import logging
 import sys
 from ArknightsStatusChecker import ArknightsStatusChecker
 
-# TODO Log清理不正常
 
 class ArknightsAutoFighter:
     class Screen:
@@ -78,12 +77,12 @@ class ArknightsAutoFighter:
             log_time = datetime.datetime.now()
             image = cv.imdecode(numpy.frombuffer(
                 picture_data, dtype="int8"), cv.IMREAD_UNCHANGED)
-            cv.line(image, (0, point_y),
-                    (image.shape[1], point_y), self.log_line_color, self.log_line_thickness)  # 画横线
-            cv.line(image, (point_x, 0), (point_x,
-                                          image.shape[0]), self.log_line_color, self.log_line_thickness)  # 画竖线
-            cv.putText(image, tag, (10, 120), self.log_font, self.log_text_scale,
-                       (255, 255, 255), 5, cv.LINE_AA)  # 打TAG
+            # cv.line(image, (0, point_y),
+            #         (image.shape[1], point_y), self.log_line_color, self.log_line_thickness)  # 画横线
+            # cv.line(image, (point_x, 0), (point_x,
+            #                               image.shape[0]), self.log_line_color, self.log_line_thickness)  # 画竖线
+            # cv.putText(image, tag, (10, 120), self.log_font, self.log_text_scale,
+            #            (255, 255, 255), 5, cv.LINE_AA)  # 打TAG
             cv.imwrite(os.path.join(self.log_path,
                                     f"log-{log_time.year}-{log_time.month}-{log_time.day}-{log_time.hour}"
                                     f"-{log_time.minute}-{log_time.second}-{tag}.png"), image)  # 保存
