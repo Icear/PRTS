@@ -10,8 +10,6 @@ import logging
 import sys
 from ArknightsStatusChecker import ArknightsStatusChecker
 
-
-# TODO 整合StatusChecker
 # TODO Log清理不正常
 
 class ArknightsAutoFighter:
@@ -56,7 +54,7 @@ class ArknightsAutoFighter:
         def click(self, x, y):
             x = round(x, 0)
             y = round(y, 0)
-            self.logger.info('tap({x}, {y})')
+            self.logger.info(f"tap({x}, {y})")
             os.system(f"{self.adb_path} {self.adb_prefix} shell input tap {x} {y}")
 
     class PictureLogger:
@@ -155,12 +153,10 @@ class ArknightsAutoFighter:
 
     def auto_fight(self):
         # 循环调用auto_fight_once 来进行战斗
-        self.logger.info(
-            f"\n--------------------start the {self.fight_count}/{self.target_game_times} fights--------------------")
+        self.logger.warning(f"start the {self.fight_count}/{self.target_game_times} fights")
         while self._auto_fight_once():
             self.fight_count += 1
-            self.logger.info(
-                f"--------------------end the {self.fight_count}/{self.target_game_times} fights----------------------\n")
+            self.logger.warning(f"end the {self.fight_count}/{self.target_game_times} fights")
             if self.fight_count >= self.target_game_times != 0:
                 # 次数达成，结束
                 logging.info('finished')
@@ -169,7 +165,7 @@ class ArknightsAutoFighter:
             # 非正常退出
             self.logger.error("fight finished with error")
             return
-        self.logger.info("finished")
+        self.logger.warning("finished")
 
     def _auto_fight_once(self):
         """
@@ -304,7 +300,7 @@ class ArknightsAutoFighter:
 
 
 if __name__ == '__main__':
-    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
     print(
         '''

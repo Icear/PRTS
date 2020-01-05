@@ -22,7 +22,7 @@ class ArknightsStatusChecker:
     _template_path = os.path.join(os.getcwd(), 'template')
     ASC_STATUS_LEVEL_SELECTION = 'level_selection'
     ASC_STATUS_LOSE_MIND = 'lose_mind'
-    ASC_STATUS_TEAM_UP = 'temp_up'
+    ASC_STATUS_TEAM_UP = 'team_up'
     ASC_STATUS_FIGHTING = 'fighting'
     ASC_STATUS_BATTLE_SETTLEMENT = 'battle_settlement'
     ASC_STATUS_ANNIHILATION_SETTLEMENT = 'annihilation_settlement'
@@ -81,7 +81,7 @@ class ArknightsStatusChecker:
             ArknightsStatusChecker.TemplateData(reg_result.group(1), reg_result.group(2),
                                                 reg_result.group(3), reg_result.group(4),
                                                 cv.imread(os.path.join(ArknightsStatusChecker._template_path,
-                                                                       template_file))
+                                                                       template_file), cv.IMREAD_GRAYSCALE)
                                                 )
         return template_data
 
@@ -124,64 +124,67 @@ class ArknightsStatusChecker:
     # 通过传入的屏幕截图来确定当前游戏状态
     def check_status(self, screen_shot):
         image = cv.imdecode(np.frombuffer(
-            screen_shot, dtype="int8"), cv.IMREAD_UNCHANGED)
+            screen_shot, dtype="int8"), cv.IMREAD_GRAYSCALE)
         if self.check_level_selection_status(image):
+            self.logger.info(f"checked status: {self.ASC_STATUS_LEVEL_SELECTION}")
             return self.ASC_STATUS_LEVEL_SELECTION
         if self.check_team_up_status(image):
+            self.logger.info(f"checked status: {self.ASC_STATUS_TEAM_UP}")
             return self.ASC_STATUS_TEAM_UP
         if self.check_battle_settlement(image):
+            self.logger.info(f"checked status: {self.ASC_STATUS_BATTLE_SETTLEMENT}")
             return self.ASC_STATUS_BATTLE_SETTLEMENT
+        self.logger.info(f"checked status: {self.ASC_STATUS_UNKNOWN}")
         return self.ASC_STATUS_UNKNOWN
 
-    def check_level_selection_status(self, target_image_level_selection):
-        for level_selection_template in self.level_selection_templates:
-            cut_image_level_selection = target_image_level_selection[
-                                        level_selection_template.start_y:level_selection_template.end_y,
-                                        level_selection_template.start_x:level_selection_template.end_x]
+    def check_level_selection_status(self, target_image):
+        for template in self.level_selection_templates:
+            cut_image = target_image[
+                        template.start_y:template.end_y,
+                        template.start_x:template.end_x]
 
             # 全局阈值
-            difference = cv.subtract(cut_image_level_selection, level_selection_template.template_data)
+            difference = cv.absdiff(cut_image, template.template_data)
             result = not np.any(difference)
             self.logger.debug(
-                f"status check show {result} for level selection template {level_selection_template.to_string()} ")
+                f"status check show {result} for level selection template {template.to_string()} ")
             if not result:
                 return False
         return True
 
-    def check_team_up_status(self, target_image_team_up):
-        for team_up_template in self.team_up_templates:
-            cut_image_team_up = target_image_team_up[
-                                team_up_template.start_y:team_up_template.end_y,
-                                team_up_template.start_x:team_up_template.end_x]
+    def check_team_up_status(self, target_image):
+        for template in self.team_up_templates:
+            cut_image = target_image[
+                        template.start_y:template.end_y,
+                        template.start_x:template.end_x]
 
             # 全局阈值
-            difference = cv.subtract(cut_image_team_up, team_up_template.template_data)
+            difference = cv.absdiff(cut_image, template.template_data)
             result = not np.any(difference)
             self.logger.debug(
-                f"status check show {result} for team up template {team_up_template.to_string()} ")
+                f"status check show {result} for team up template {template.to_string()} ")
             if not result:
                 return False
         return True
 
-    def check_battle_settlement(self, target_image_battle_settlement):
-        for battle_settlement_template in self.battle_settlement_templates:
-            # 模板图片
-            template_image_battle_settlement = cv.cvtColor(battle_settlement_template.template_data, cv.COLOR_BGR2GRAY)
-            # 目标图片
-            target_image_battle_settlement = cv.cvtColor(target_image_battle_settlement, cv.COLOR_BGR2GRAY)
-            cut_image_battle_settlement = target_image_battle_settlement[794:913, 53:538]
+    def check_battle_settlement(self, target_image):
+        for template in self.battle_settlement_templates:
+            # 目标图片切割
+            cut_image = target_image[
+                        template.start_y:template.end_y,
+                        template.start_x:template.end_x]
 
             # Otsu 阈值
-            _, cut_image_battle_settlement_new = cv.threshold(cut_image_battle_settlement, 170, 255,
-                                                              cv.THRESH_BINARY + cv.THRESH_OTSU)
-            _, template_image_battle_settlement_new = cv.threshold(template_image_battle_settlement, 170, 255,
-                                                                   cv.THRESH_BINARY + cv.THRESH_OTSU)
+            _, cut_image_new = cv.threshold(cut_image, 170, 255,
+                                            cv.THRESH_BINARY + cv.THRESH_OTSU)
+            _, template_image_new = cv.threshold(template.template_data, 170, 255,
+                                                 cv.THRESH_BINARY + cv.THRESH_OTSU)
 
-            difference = cv.subtract(cut_image_battle_settlement_new, template_image_battle_settlement_new)
+            difference = cv.absdiff(cut_image_new, template_image_new)
             mean, _ = cv.meanStdDev(difference)
             result = mean[0][0] < 1
             self.logger.debug(
-                f"status check show {result} for team up template {battle_settlement_template.to_string()} ")
+                f"status check show {result} for team up template {template.to_string()} ")
             if not result:
                 return False
         return True
@@ -190,4 +193,4 @@ class ArknightsStatusChecker:
 if __name__ == '__main__':
     status_checker = ArknightsStatusChecker()
     # status_checker.cut_template(
-    #     os.path.join(os.getcwd(), 'log1', 'log-2020-1-4-13-24-43-leave_summarize_interface(1473,546).png'))
+    #     os.path.join(os.getcwd(), 'test_case', 'log-2020-1-4-13-24-43-leave_summarize_interface(1473,546).png'))
