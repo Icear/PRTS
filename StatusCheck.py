@@ -93,6 +93,27 @@ def test_restore_mind_medicine(target_image):
     # cv.waitKey(0)
     return result
 
+
+def test_restore_mind_stone(target_image):
+    #
+    # 理智恢复-药剂模板
+    #
+    template_image = cv.imread(
+        os.path.join(os.getcwd(), 'template', 'restore_mind_stone-1464-115-1748-168.png'), cv.IMREAD_GRAYSCALE)
+
+    cut_image = target_image[115:168, 1464:1748]
+
+    # 全局阈值
+    difference = cv.absdiff(cut_image, template_image)
+    result = not np.any(difference)
+    # print(result)
+    # cv.imshow('cut_image', cut_image)
+    # cv.imshow('template_image', template_image)
+    # cv.imshow('difference', difference)
+    # cv.waitKey(0)
+    return result
+
+
 if __name__ == '__main__':
 
     # 把test_case下的所有图片读出来，丢给目标函数检查，输出每一次的检查结果和被检查的文件名
@@ -109,13 +130,14 @@ if __name__ == '__main__':
     success_count = 0
     fail_count = 0
 
-    test_target = 'restore_mind_medicine'
+    test_target = 'restore_mind_stone'
     test_active_only = False
     test_method = {
         "level_selection": test_level_selection,
         "team_up": test_team_up,
         "battle_settlement": test_battle_settlement,
         "restore_mind_medicine": test_restore_mind_medicine,
+        "restore_mind_stone": test_restore_mind_stone,
     }
     test_string = {
         "level_selection": "enter_team_up",
