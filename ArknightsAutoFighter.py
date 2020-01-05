@@ -122,7 +122,7 @@ class ArknightsAutoFighter:
         'confirm_restore_mind_y_prefix_end': 60,
         'screen_resolution': Screen(1920, 980),
     }
-    
+
     status_checker = ArknightsStatusChecker()
 
     def __init__(self, fight_times, allow_use_medicine=False):
@@ -177,7 +177,6 @@ class ArknightsAutoFighter:
         """
         # 调用status_checker确定当前状态，然后根据状态执行动作，不再为每个关卡指定时间定时
         fight_finished = False
-        last_status = ''
         status = ''
         while True:
             last_status = status
@@ -233,7 +232,12 @@ class ArknightsAutoFighter:
                 continue
             if status == self.status_checker.ASC_STATUS_UNKNOWN:
                 # 未知状态，等待五秒后再次检查
-                # TODO 连续2次检查失败则报错
+                if last_status == status:
+                    # 连续2次检查失败则报错
+                    self.logger.error(f"error, unrecognized status, check out log for screen shot")
+                    self.picture_logger.log(1, 1, "unrecognized status for ArkngithsStatusChecker",
+                                            self.adb_controller.get_device_screen_picture())
+                    return False
                 self._sleep(5)
                 continue
 
