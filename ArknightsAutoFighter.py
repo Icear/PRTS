@@ -96,29 +96,34 @@ class ArknightsAutoFighter:
     logger = logging.getLogger('ArknightsAutoFighter')
 
     device_config = {
-        'phone': {
-            'enter_team_up_x': 2256,
+        'emulator': {
+            'enter_team_up_x': 1851,
             'enter_team_up_x_prefix_start': 0,
-            'enter_team_up_x_prefix_end': 256,
-            'enter_team_up_y': 965,
+            'enter_team_up_x_prefix_end': 210,
+            'enter_team_up_y': 875,
             'enter_team_up_y_prefix_start': 0,
-            'enter_team_up_y_prefix_end': 50,
-            'enter_game_x': 1990,
+            'enter_team_up_y_prefix_end': 46,
+            'enter_game_x': 1632,
             'enter_game_x_prefix_start': 0,
-            'enter_game_x_prefix_end': 110,
-            'enter_game_y': 589,
+            'enter_game_x_prefix_end': 91,
+            'enter_game_y': 534,
             'enter_game_y_prefix_start': 0,
-            'enter_game_y_prefix_end': 60,
-            'leave_settlement_x': 1969,
+            'enter_game_y_prefix_end': 54,
+            'leave_settlement_x': 1615,
             'leave_settlement_x_prefix_start': 0,
-            'leave_settlement_x_prefix_end': 180,
-            'leave_settlement_y': 589,
+            'leave_settlement_x_prefix_end': 148,
+            'leave_settlement_y': 534,
             'leave_settlement_y_prefix_start': 0,
-            'leave_settlement_y_prefix_end': 70,
-            'screen_resolution': Screen(2340, 1080)
+            'leave_settlement_y_prefix_end': 63,
+            'confirm_restore_mind_x': 1509,
+            'confirm_restore_mind_x_prefix_start': 0,
+            'confirm_restore_mind_x_prefix_end': 100,
+            'confirm_restore_mind_y': 745,
+            'confirm_restore_mind_y_prefix_start': 0,
+            'confirm_restore_mind_y_prefix_end': 60,
+            'screen_resolution': Screen(1920, 980),
         }
     }
-    # TODO 根据常用设备分辨率重新计算config
 
     status_checker = ArknightsStatusChecker()
 
@@ -132,7 +137,7 @@ class ArknightsAutoFighter:
         # 初始化日志
         self.picture_logger = self.PictureLogger()
         # 获取设备分辨率
-        self.target_resolution = self.device_config['phone']['screen_resolution']
+        self.target_resolution = self.device_config['emulator']['screen_resolution']
         self.target_resolution = self.adb_controller.get_device_resolution()
         # 初始化统计变量
         self.fight_count = 0
