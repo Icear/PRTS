@@ -114,6 +114,12 @@ class ArknightsAutoFighter:
         'leave_settlement_y': 534,
         'leave_settlement_y_prefix_start': 0,
         'leave_settlement_y_prefix_end': 63,
+        'leave_annihilation_settlement_x': 1615,
+        'leave_annihilation_settlement_x_prefix_start': 0,
+        'leave_annihilation_settlement_x_prefix_end': 148,
+        'leave_annihilation_settlement_y': 534,
+        'leave_annihilation_settlement_y_prefix_start': 0,
+        'leave_annihilation_settlement_y_prefix_end': 63,
         'confirm_restore_mind_x': 1509,
         'confirm_restore_mind_x_prefix_start': 0,
         'confirm_restore_mind_x_prefix_end': 100,
@@ -264,13 +270,12 @@ class ArknightsAutoFighter:
         """
         离开剿灭结算页面
         """
-        # TODO 分离退出结算界面和退出剿灭结算界面的点击区域数据
-        point_x = self.device_config['leave_settlement_x'] - random.uniform(
-            self.device_config['leave_settlement_x_prefix_start'],
-            self.device_config['leave_settlement_x_prefix_end'])
-        point_y = self.device_config['leave_settlement_y'] + random.uniform(
-            self.device_config['leave_settlement_y_prefix_start'],
-            self.device_config['leave_settlement_y_prefix_end'])
+        point_x = self.device_config['leave_annihilation_settlement_x'] - random.uniform(
+            self.device_config['leave_annihilation_settlement_x_prefix_start'],
+            self.device_config['leave_annihilation_settlement_x_prefix_end'])
+        point_y = self.device_config['leave_annihilation_settlement_y'] + random.uniform(
+            self.device_config['leave_annihilation_settlement_y_prefix_start'],
+            self.device_config['leave_annihilation_settlement_y_prefix_end'])
         point_x, point_y = self._compute_new_point(
             point_x, point_y, self.device_config['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
