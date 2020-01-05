@@ -6,13 +6,14 @@ import cv2 as cv
 import numpy
 import subprocess
 import datetime
+import logging
 
 
 # from ArknightsStatusChecker import ArknightsStatusChecker
-# import logging
+
 
 # TODO 整合StatusChecker
-# TODO 引入logger
+
 
 class ArknightsAutoFighter:
     class Screen:
@@ -23,6 +24,7 @@ class ArknightsAutoFighter:
                 self.length, self.width = self.width, self.length
 
     class ADBController:
+        logger = logging.getLogger('ADBController')
         adb_path = 'adb'
         adb_prefix = ''  # prefix paramater
 
@@ -39,26 +41,27 @@ class ArknightsAutoFighter:
             return data
 
         def get_device_resolution(self):
-            print("getting device screen resolution...", end='.')
+            self.logger.info('getting device screen resolution')
             with os.popen(f"{self.adb_path} {self.adb_prefix} shell wm size") as reply:
                 pattern = re.compile(r'.*? (\d*?)x(\d*?)$')
                 match_result = pattern.match(reply.readline())
                 screen_resolution = ArknightsAutoFighter.Screen(match_result[1], match_result[2])
-            print(f"size is {screen_resolution.length}x{screen_resolution.width}")
+            self.logger.info('screen size is {screen_resolution.length}x{screen_resolution.width}')
             return screen_resolution
 
         def wait_for_device(self):
-            print("waiting for device...", end='.')
+            self.logger.info('waiting for device...')
             os.system(f"{self.adb_path} {self.adb_prefix} wait-for-device")
-            print("ok")
+            self.logger.info('device connected')
 
         def click(self, x, y):
             x = round(x, 0)
             y = round(y, 0)
-            print(f"tap({x}, {y})")
+            self.logger.info('tap({x}, {y})')
             os.system(f"{self.adb_path} {self.adb_prefix} shell input tap {x} {y}")
 
     class PictureLogger:
+        logger = logging.getLogger('PictureLogger')
         log_delete_last = True
         log_path = os.path.join(os.getcwd(), 'log')
         log_line_color = (255, 0, 0)
@@ -89,11 +92,12 @@ class ArknightsAutoFighter:
                                     f"-{log_time.minute}-{log_time.second}-{tag}.png"), image)  # 保存
 
         def _delete_old_log(self):
-            print("clean log..", end='.')
+            self.logger.info('clean log..')
             for file in os.listdir(self.log_path):
                 os.remove(os.path.join(self.log_path, file))
-            print("ok")
+            self.logger.info('log cleaned')
 
+    logger = logging.getLogger('ArknightsAutoFighter')
     target_game_times = 7  # 要刷的次数
     target_game_name = '1-7'  # 要刷的关卡
 
@@ -180,26 +184,26 @@ class ArknightsAutoFighter:
 
     def auto_fight(self):
         # 在地图选择界面点击开始作战按钮
-        print("entering team up...", end='.')
+        self.logger.info("entering team up")
         self._enter_team_up()
         self._sleep(random.uniform(3, 5))
 
         # 选择队伍界面点击出战按钮
-        print("entering game...", end='.')
+        self.logger.info('entering game...')
         self._enter_game()
         self._sleep(random.uniform(3, 5))
 
         # 等待游戏结束
-        print(" ")
+        self.logger.info('start waiting for game finished')
+        self.logger.info(' ')
         for j in range(self.time_dictionary[self.target_game_name]):
-            print(f"\rwaiting {j + 1} seconds for game finish...",
-                  end=".", flush=True)
+            self.logger.debug(f"waiting {j + 1} seconds for game finish...")
             self._sleep(1)
-        print("\rgame finished                                                ")
+        self.logger.info('game finished')
         self._sleep(random.uniform(5, 8))
 
         # 退出结算界面
-        print("leaving the settlement interface...", end='.')
+        self.logger.info('leaving the settlement interface...')
         self._leave_settlement()
         self._sleep(random.uniform(5, 8))
 
@@ -290,5 +294,3 @@ if __name__ == '__main__':
         af.auto_fight()
         print(
             f"--------------------end the {i + 1}/{af.target_game_times} fights----------------------\n")
-
-    print("program finished")
