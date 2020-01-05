@@ -11,7 +11,7 @@ import datetime
 # from ArknightsStatusChecker import ArknightsStatusChecker
 # import logging
 
-# TODO 输出log前先检查文件夹是否存在并创建
+
 # TODO 整合StatusChecker
 # TODO 引入logger
 
@@ -42,6 +42,7 @@ class ArknightsAutoFighter:
             os.system(f"{self.adb_path} kill-server")
             os.system(f"{self.adb_path} connect 127.0.0.1:7555")
             self.adb_prefix = '-s 127.0.0.1:7555'
+            self.wait_for_device()
 
         def get_device_screen_picture(self):
             with subprocess.Popen(f"{self.adb_path} {self.adb_prefix} exec-out screencap -p", shell=True,
@@ -127,21 +128,28 @@ class ArknightsAutoFighter:
         }
     }
 
-    target_resolution = device_config['phone']['screen_resolution']
-
     def __init__(self):
+        # 连接并初始化设备
         self.adb_controller = self.ADBController()
 
-    def init(self):
-        pass
+        # 获取设备分辨率
+        self.target_resolution = self.device_config['phone']['screen_resolution']
+        self.target_resolution = self.adb_controller.get_device_resolution()
 
-    def delete_old_log(self):
+        # 清理日志
+        if os.path.exists(self.log_path):
+            if self.log_delete_last:
+                self._delete_old_log()
+        else:
+            os.mkdir(self.log_path)
+
+    def _delete_old_log(self):
         print("clean log..", end='.')
         for file in os.listdir(self.log_path):
             os.remove(os.path.join(self.log_path, file))
         print("ok")
 
-    def log(self, point_x, point_y, tag):
+    def _log(self, point_x, point_y, tag):
         log_time = datetime.datetime.now()
         data = self.adb_controller.get_device_screen_picture()
         image = cv.imdecode(numpy.frombuffer(
@@ -158,16 +166,16 @@ class ArknightsAutoFighter:
                    image)  # 保存
 
     @staticmethod
-    def compute_new_point(point_x, point_y, original_resolution, new_resolution):
+    def _compute_new_point(point_x, point_y, original_resolution, new_resolution):
         # 根据传入的原始分辨率和x,y坐标还有目标分辨率计算新的坐标位置
         new_x = point_x / original_resolution.length * new_resolution.length
         new_y = point_y / original_resolution.width * new_resolution.width
         return new_x, new_y
 
     @staticmethod
-    def sleep(ftime):
+    def _sleep(fake_time):
         # a = 1
-        time.sleep(ftime)
+        time.sleep(fake_time)
 
     def auto_fight(self):
         # 在地图选择界面点击开始作战按钮
@@ -178,13 +186,13 @@ class ArknightsAutoFighter:
         point_y = self.device_config['phone']['enter_company_interface_button_y'] + random.uniform(
             self.device_config['phone']['enter_company_interface_button_y_prefix_start'],
             self.device_config['phone']['enter_company_interface_button_y_prefix_end'])
-        point_x, point_y = self.compute_new_point(
-            point_x, point_y, self.device_config['phone']['screen_resolution'], target_resolution)
+        point_x, point_y = self._compute_new_point(
+            point_x, point_y, self.device_config['phone']['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
         point_y = int(point_y)
-        self.log(point_x, point_y, f"enter_company_interface({point_x},{point_y})")
+        self._log(point_x, point_y, f"enter_company_interface({point_x},{point_y})")
         self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
-        self.sleep(random.uniform(3, 5))
+        self._sleep(random.uniform(3, 5))
         # 选择队伍界面点击出战按钮
         print("entering game...", end='.')
         point_x = self.device_config['phone']['enter_game_button_x'] - random.uniform(
@@ -193,21 +201,21 @@ class ArknightsAutoFighter:
         point_y = self.device_config['phone']['enter_game_button_y'] + random.uniform(
             self.device_config['phone']['enter_game_button_y_prefix_start'],
             self.device_config['phone']['enter_game_button_y_prefix_end'])
-        point_x, point_y = self.compute_new_point(
-            point_x, point_y, self.device_config['phone']['screen_resolution'], target_resolution)
+        point_x, point_y = self._compute_new_point(
+            point_x, point_y, self.device_config['phone']['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
         point_y = int(point_y)
-        self.log(point_x, point_y, f"enter_game({point_x},{point_y})")
+        self._log(point_x, point_y, f"enter_game({point_x},{point_y})")
         self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
-        self.sleep(random.uniform(3, 5))
+        self._sleep(random.uniform(3, 5))
         # 等待游戏结束
         print(" ")
         for j in range(self.time_dictionary[self.target_game_name]):
             print(f"\rwaiting {j + 1} seconds for game finish...",
                   end=".", flush=True)
-            self.sleep(1)
+            self._sleep(1)
         print("\rgame finished                                                ")
-        self.sleep(random.uniform(5, 8))
+        self._sleep(random.uniform(5, 8))
 
         # 退出结算界面
         print("leaving the summarize interface...", end='.')
@@ -217,17 +225,17 @@ class ArknightsAutoFighter:
         point_y = self.device_config['phone']['leave_summarize_interface_button_y'] + random.uniform(
             self.device_config['phone']['leave_summarize_interface_button_y_prefix_start'],
             self.device_config['phone']['leave_summarize_interface_button_y_prefix_end'])
-        point_x, point_y = self.compute_new_point(
+        point_x, point_y = self._compute_new_point(
             point_x, point_y, self.device_config['phone']['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
         point_y = int(point_y)
-        if self.target_game_name[0:1] == 'k':
-            self.log(point_x, point_y, f"exit proxy fight result interface({point_x},{point_y})")
+        if self.target_game_name[:1] == 'k':
+            self._log(point_x, point_y, f"exit proxy fight result interface({point_x},{point_y})")
             self.adb_controller.click(point_x, point_y)  # 剿灭系列结算需要多点击一次
-            self.sleep(random.uniform(1, 3))
-        self.log(point_x, point_y, f"leave_summarize_interface({point_x},{point_y})")
+            self._sleep(random.uniform(1, 3))
+        self._log(point_x, point_y, f"leave_summarize_interface({point_x},{point_y})")
         self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
-        self.sleep(random.uniform(5, 8))
+        self._sleep(random.uniform(5, 8))
 
 
 if __name__ == '__main__':
@@ -247,10 +255,6 @@ if __name__ == '__main__':
         f"target game is {af.target_game_name}, waiting time is {af.time_dictionary[af.target_game_name]}, "
         f"times is {af.target_game_times}, expected time consuming: "
         f"{af.target_game_times * af.time_dictionary[af.target_game_name]}s")
-    af.init()
-    af.delete_old_log()
-    af.adb_controller.wait_for_device()
-    target_resolution = af.adb_controller.get_device_resolution()
 
     for i in range(af.target_game_times):
         print(
