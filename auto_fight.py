@@ -11,7 +11,6 @@ import datetime
 # from ArknightsStatusChecker import ArknightsStatusChecker
 # import logging
 
-
 # TODO 整合StatusChecker
 # TODO 引入logger
 
@@ -136,24 +135,24 @@ class ArknightsAutoFighter:
 
     device_config = {
         'phone': {
-            'enter_company_interface_button_x': 2256,
-            'enter_company_interface_button_x_prefix_start': 0,
-            'enter_company_interface_button_x_prefix_end': 256,
-            'enter_company_interface_button_y': 965,
-            'enter_company_interface_button_y_prefix_start': 0,
-            'enter_company_interface_button_y_prefix_end': 50,
-            'enter_game_button_x': 1990,
-            'enter_game_button_x_prefix_start': 0,
-            'enter_game_button_x_prefix_end': 110,
-            'enter_game_button_y': 589,
-            'enter_game_button_y_prefix_start': 0,
-            'enter_game_button_y_prefix_end': 60,
-            'leave_summarize_interface_button_x': 1969,
-            'leave_summarize_interface_button_x_prefix_start': 0,
-            'leave_summarize_interface_button_x_prefix_end': 180,
-            'leave_summarize_interface_button_y': 589,
-            'leave_summarize_interface_button_y_prefix_start': 0,
-            'leave_summarize_interface_button_y_prefix_end': 70,
+            'enter_team_up_x': 2256,
+            'enter_team_up_x_prefix_start': 0,
+            'enter_team_up_x_prefix_end': 256,
+            'enter_team_up_y': 965,
+            'enter_team_up_y_prefix_start': 0,
+            'enter_team_up_y_prefix_end': 50,
+            'enter_game_x': 1990,
+            'enter_game_x_prefix_start': 0,
+            'enter_game_x_prefix_end': 110,
+            'enter_game_y': 589,
+            'enter_game_y_prefix_start': 0,
+            'enter_game_y_prefix_end': 60,
+            'leave_settlement_x': 1969,
+            'leave_settlement_x_prefix_start': 0,
+            'leave_settlement_x_prefix_end': 180,
+            'leave_settlement_y': 589,
+            'leave_settlement_y_prefix_start': 0,
+            'leave_settlement_y_prefix_end': 70,
             'screen_resolution': Screen(2340, 1080)
         }
     }
@@ -161,8 +160,8 @@ class ArknightsAutoFighter:
     def __init__(self):
         # 连接并初始化设备
         self.adb_controller = self.ADBController()
+        # 初始化日志
         self.picture_logger = self.PictureLogger()
-
         # 获取设备分辨率
         self.target_resolution = self.device_config['phone']['screen_resolution']
         self.target_resolution = self.adb_controller.get_device_resolution()
@@ -181,37 +180,15 @@ class ArknightsAutoFighter:
 
     def auto_fight(self):
         # 在地图选择界面点击开始作战按钮
-        print("entering interface...", end='.')
-        point_x = self.device_config['phone']['enter_company_interface_button_x'] - random.uniform(
-            self.device_config['phone']['enter_company_interface_button_x_prefix_start'],
-            self.device_config['phone']['enter_company_interface_button_x_prefix_end'])
-        point_y = self.device_config['phone']['enter_company_interface_button_y'] + random.uniform(
-            self.device_config['phone']['enter_company_interface_button_y_prefix_start'],
-            self.device_config['phone']['enter_company_interface_button_y_prefix_end'])
-        point_x, point_y = self._compute_new_point(
-            point_x, point_y, self.device_config['phone']['screen_resolution'], self.target_resolution)
-        point_x = int(point_x)
-        point_y = int(point_y)
-        self.picture_logger.log(point_x, point_y, f"enter_company_interface({point_x},{point_y})",
-                                self.adb_controller.get_device_screen_picture())
-        self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
+        print("entering team up...", end='.')
+        self._enter_team_up()
         self._sleep(random.uniform(3, 5))
+
         # 选择队伍界面点击出战按钮
         print("entering game...", end='.')
-        point_x = self.device_config['phone']['enter_game_button_x'] - random.uniform(
-            self.device_config['phone']['enter_game_button_x_prefix_start'],
-            self.device_config['phone']['enter_game_button_x_prefix_end'])
-        point_y = self.device_config['phone']['enter_game_button_y'] + random.uniform(
-            self.device_config['phone']['enter_game_button_y_prefix_start'],
-            self.device_config['phone']['enter_game_button_y_prefix_end'])
-        point_x, point_y = self._compute_new_point(
-            point_x, point_y, self.device_config['phone']['screen_resolution'], self.target_resolution)
-        point_x = int(point_x)
-        point_y = int(point_y)
-        self.picture_logger.log(point_x, point_y, f"enter_game({point_x},{point_y})",
-                                self.adb_controller.get_device_screen_picture())
-        self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
+        self._enter_game()
         self._sleep(random.uniform(3, 5))
+
         # 等待游戏结束
         print(" ")
         for j in range(self.time_dictionary[self.target_game_name]):
@@ -222,13 +199,21 @@ class ArknightsAutoFighter:
         self._sleep(random.uniform(5, 8))
 
         # 退出结算界面
-        print("leaving the summarize interface...", end='.')
-        point_x = self.device_config['phone']['leave_summarize_interface_button_x'] - random.uniform(
-            self.device_config['phone']['leave_summarize_interface_button_x_prefix_start'],
-            self.device_config['phone']['leave_summarize_interface_button_x_prefix_end'])
-        point_y = self.device_config['phone']['leave_summarize_interface_button_y'] + random.uniform(
-            self.device_config['phone']['leave_summarize_interface_button_y_prefix_start'],
-            self.device_config['phone']['leave_summarize_interface_button_y_prefix_end'])
+        print("leaving the settlement interface...", end='.')
+        self._leave_settlement()
+        self._sleep(random.uniform(5, 8))
+
+    '''
+    离开结算界面
+    '''
+
+    def _leave_settlement(self):
+        point_x = self.device_config['phone']['leave_settlement_x'] - random.uniform(
+            self.device_config['phone']['leave_settlement_x_prefix_start'],
+            self.device_config['phone']['leave_settlement_x_prefix_end'])
+        point_y = self.device_config['phone']['leave_settlement_y'] + random.uniform(
+            self.device_config['phone']['leave_settlement_y_prefix_start'],
+            self.device_config['phone']['leave_settlement_y_prefix_end'])
         point_x, point_y = self._compute_new_point(
             point_x, point_y, self.device_config['phone']['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
@@ -238,10 +223,47 @@ class ArknightsAutoFighter:
                                     self.adb_controller.get_device_screen_picture())
             self.adb_controller.click(point_x, point_y)  # 剿灭系列结算需要多点击一次
             self._sleep(random.uniform(1, 3))
-        self.picture_logger.log(point_x, point_y, f"leave_summarize_interface({point_x},{point_y})",
+        self.picture_logger.log(point_x, point_y, f"leave_settlement({point_x},{point_y})",
                                 self.adb_controller.get_device_screen_picture())
         self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
-        self._sleep(random.uniform(5, 8))
+
+    '''
+    从队伍选择界面进入游戏界面
+    '''
+
+    def _enter_game(self):
+        point_x = self.device_config['phone']['enter_game_x'] - random.uniform(
+            self.device_config['phone']['enter_game_x_prefix_start'],
+            self.device_config['phone']['enter_game_x_prefix_end'])
+        point_y = self.device_config['phone']['enter_game_y'] + random.uniform(
+            self.device_config['phone']['enter_game_y_prefix_start'],
+            self.device_config['phone']['enter_game_y_prefix_end'])
+        point_x, point_y = self._compute_new_point(
+            point_x, point_y, self.device_config['phone']['screen_resolution'], self.target_resolution)
+        point_x = int(point_x)
+        point_y = int(point_y)
+        self.picture_logger.log(point_x, point_y, f"enter_game({point_x},{point_y})",
+                                self.adb_controller.get_device_screen_picture())
+        self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
+
+    '''
+    从关卡选择界面进入队伍选择界面
+    '''
+
+    def _enter_team_up(self):
+        point_x = self.device_config['phone']['enter_team_up_x'] - random.uniform(
+            self.device_config['phone']['enter_team_up_x_prefix_start'],
+            self.device_config['phone']['enter_team_up_x_prefix_end'])
+        point_y = self.device_config['phone']['enter_team_up_y'] + random.uniform(
+            self.device_config['phone']['enter_team_up_y_prefix_start'],
+            self.device_config['phone']['enter_team_up_y_prefix_end'])
+        point_x, point_y = self._compute_new_point(
+            point_x, point_y, self.device_config['phone']['screen_resolution'], self.target_resolution)
+        point_x = int(point_x)
+        point_y = int(point_y)
+        self.picture_logger.log(point_x, point_y, f"enter_team_up({point_x},{point_y})",
+                                self.adb_controller.get_device_screen_picture())
+        self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
 
 
 if __name__ == '__main__':
