@@ -26,7 +26,7 @@ class ArknightsAutoFighter:
     class ADBController:
         logger = logging.getLogger('ADBController')
         adb_path = 'adb'
-        adb_prefix = ''  # prefix paramater
+        adb_prefix = ''  # prefix parameters
 
         def __init__(self):
             os.system(f"{self.adb_path} kill-server")
@@ -272,6 +272,8 @@ class ArknightsAutoFighter:
 
 if __name__ == '__main__':
 
+    logging.basicConfig(level=logging.INFO)
+
     print(
         '''
             _          _       _     _                         _         __ _       _     _
@@ -283,14 +285,14 @@ if __name__ == '__main__':
        '''
     )
     af = ArknightsAutoFighter()
-    print(
+    logging.warning(
         f"target game is {af.target_game_name}, waiting time is {af.time_dictionary[af.target_game_name]}, "
         f"times is {af.target_game_times}, expected time consuming: "
         f"{af.target_game_times * af.time_dictionary[af.target_game_name]}s")
 
     for i in range(af.target_game_times):
-        print(
+        logging.warning(
             f"\n--------------------start the {i + 1}/{af.target_game_times} fights--------------------")
         af.auto_fight()
-        print(
+        logging.warning(
             f"--------------------end the {i + 1}/{af.target_game_times} fights----------------------\n")
