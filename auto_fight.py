@@ -23,17 +23,6 @@ class ArknightsAutoFighter:
             if self.length < self.width:
                 self.length, self.width = self.width, self.length
 
-    target_game_times = 7  # 要刷的次数
-    target_game_name = '1-7'  # 要刷的关卡
-    notify = False
-
-    log_delete_last = True
-    log_path = os.path.join(os.getcwd(), 'log')
-    log_line_color = (255, 0, 0)
-    log_line_thickness = 2
-    log_font = cv.FONT_HERSHEY_SIMPLEX
-    log_text_scale = 2
-
     class ADBController:
         adb_path = 'adb'
         adb_prefix = ''  # prefix paramater
@@ -69,6 +58,47 @@ class ArknightsAutoFighter:
             y = round(y, 0)
             print(f"tap({x}, {y})")
             os.system(f"{self.adb_path} {self.adb_prefix} shell input tap {x} {y}")
+
+    class PictureLogger:
+        log_delete_last = True
+        log_path = os.path.join(os.getcwd(), 'log')
+        log_line_color = (255, 0, 0)
+        log_line_thickness = 2
+        log_font = cv.FONT_HERSHEY_SIMPLEX
+        log_text_scale = 2
+
+        def __init__(self):
+            # 清理日志
+            if os.path.exists(self.log_path):
+                if self.log_delete_last:
+                    self._delete_old_log()
+            else:
+                os.mkdir(self.log_path)
+
+        def log(self, point_x, point_y, tag, picture_data):
+            log_time = datetime.datetime.now()
+            image = cv.imdecode(numpy.frombuffer(
+                picture_data, dtype="int8"), cv.IMREAD_UNCHANGED)
+            cv.line(image, (0, point_y),
+                    (image.shape[1], point_y), self.log_line_color, self.log_line_thickness)  # 画横线
+            cv.line(image, (point_x, 0), (point_x,
+                                          image.shape[0]), self.log_line_color, self.log_line_thickness)  # 画竖线
+            cv.putText(image, tag, (10, 120), self.log_font, self.log_text_scale,
+                       (255, 255, 255), 5, cv.LINE_AA)  # 打TAG
+            cv.imwrite(os.path.join(self.log_path,
+                                    f"log-{log_time.year}-{log_time.month}-{log_time.day}-{log_time.hour}"
+                                    f"-{log_time.minute}-{log_time.second}-{tag}.png"), image)  # 保存
+
+        def _delete_old_log(self):
+            print("clean log..", end='.')
+            for file in os.listdir(self.log_path):
+                os.remove(os.path.join(self.log_path, file))
+            print("ok")
+
+    target_game_times = 7  # 要刷的次数
+    target_game_name = '1-7'  # 要刷的关卡
+
+    notify = False
 
     time_dictionary = {
         '1-7': 90,
@@ -131,39 +161,11 @@ class ArknightsAutoFighter:
     def __init__(self):
         # 连接并初始化设备
         self.adb_controller = self.ADBController()
+        self.picture_logger = self.PictureLogger()
 
         # 获取设备分辨率
         self.target_resolution = self.device_config['phone']['screen_resolution']
         self.target_resolution = self.adb_controller.get_device_resolution()
-
-        # 清理日志
-        if os.path.exists(self.log_path):
-            if self.log_delete_last:
-                self._delete_old_log()
-        else:
-            os.mkdir(self.log_path)
-
-    def _delete_old_log(self):
-        print("clean log..", end='.')
-        for file in os.listdir(self.log_path):
-            os.remove(os.path.join(self.log_path, file))
-        print("ok")
-
-    def _log(self, point_x, point_y, tag):
-        log_time = datetime.datetime.now()
-        data = self.adb_controller.get_device_screen_picture()
-        image = cv.imdecode(numpy.frombuffer(
-            data, dtype="int8"), cv.IMREAD_UNCHANGED)
-        cv.line(image, (0, point_y),
-                (image.shape[1], point_y), self.log_line_color, self.log_line_thickness)  # 画横线
-        cv.line(image, (point_x, 0), (point_x,
-                                      image.shape[0]), self.log_line_color, self.log_line_thickness)  # 画竖线
-        cv.putText(image, tag, (10, 120), self.log_font, self.log_text_scale,
-                   (255, 255, 255), 5, cv.LINE_AA)  # 打TAG
-        cv.imwrite(os.path.join(self.log_path,
-                                f"log-{log_time.year}-{log_time.month}-{log_time.day}-{log_time.hour}-{log_time.minute}"
-                                f"-{log_time.second}-{tag}.png"),
-                   image)  # 保存
 
     @staticmethod
     def _compute_new_point(point_x, point_y, original_resolution, new_resolution):
@@ -190,7 +192,8 @@ class ArknightsAutoFighter:
             point_x, point_y, self.device_config['phone']['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
         point_y = int(point_y)
-        self._log(point_x, point_y, f"enter_company_interface({point_x},{point_y})")
+        self.picture_logger.log(point_x, point_y, f"enter_company_interface({point_x},{point_y})",
+                                self.adb_controller.get_device_screen_picture())
         self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
         self._sleep(random.uniform(3, 5))
         # 选择队伍界面点击出战按钮
@@ -205,7 +208,8 @@ class ArknightsAutoFighter:
             point_x, point_y, self.device_config['phone']['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
         point_y = int(point_y)
-        self._log(point_x, point_y, f"enter_game({point_x},{point_y})")
+        self.picture_logger.log(point_x, point_y, f"enter_game({point_x},{point_y})",
+                                self.adb_controller.get_device_screen_picture())
         self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
         self._sleep(random.uniform(3, 5))
         # 等待游戏结束
@@ -230,10 +234,12 @@ class ArknightsAutoFighter:
         point_x = int(point_x)
         point_y = int(point_y)
         if self.target_game_name[:1] == 'k':
-            self._log(point_x, point_y, f"exit proxy fight result interface({point_x},{point_y})")
+            self.picture_logger.log(point_x, point_y, f"exit proxy fight result interface({point_x},{point_y})",
+                                    self.adb_controller.get_device_screen_picture())
             self.adb_controller.click(point_x, point_y)  # 剿灭系列结算需要多点击一次
             self._sleep(random.uniform(1, 3))
-        self._log(point_x, point_y, f"leave_summarize_interface({point_x},{point_y})")
+        self.picture_logger.log(point_x, point_y, f"leave_summarize_interface({point_x},{point_y})",
+                                self.adb_controller.get_device_screen_picture())
         self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
         self._sleep(random.uniform(5, 8))
 
