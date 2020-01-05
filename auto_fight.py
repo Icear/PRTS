@@ -122,10 +122,10 @@ class ArknightsAutoFighter:
 
     status_checker = ArknightsStatusChecker()
 
-    def __init__(self, fight_times):
+    def __init__(self, fight_times, allow_use_medicine=False):
         """
-        自动战斗工具
-        :param fight_times: 非0表示指定次数，0为刷到体力用完
+        :param fight_times: 刷的次数，0为刷到体力不足
+        :param allow_use_medicine:  是否允许使用回体力药剂
         """
         # 连接并初始化设备
         self.adb_controller = self.ADBController()
@@ -136,7 +136,8 @@ class ArknightsAutoFighter:
         self.target_resolution = self.adb_controller.get_device_resolution()
         # 初始化统计变量
         self.fight_count = 0
-        self.target_game_times = fight_times  # 要刷的次数
+        self.target_game_times = fight_times
+        self.allow_use_medicine = allow_use_medicine
 
     @staticmethod
     def _compute_new_point(point_x, point_y, original_resolution, new_resolution):
@@ -188,7 +189,11 @@ class ArknightsAutoFighter:
                 continue
             if status == self.status_checker.ASC_STATUS_RESTORE_MIND_MEDICINE:
                 # 在体力不足界面
-                # TODO 检查“允许使用体力药剂”标记，不允许则结束，允许则使用药剂
+                # 检查“允许使用体力药剂”标记，不允许则结束，允许则使用药剂
+                if self.allow_use_medicine:
+                    self._confirm_mind_restore()  # 使用体力药剂
+                    self._sleep(random.uniform(3, 4))  # 等待游戏响应
+                    continue
                 self.logger.error(
                     f"can't continue due to bad status: {self.status_checker.ASC_STATUS_RESTORE_MIND_MEDICINE}")
                 return False
@@ -302,6 +307,12 @@ class ArknightsAutoFighter:
         self.picture_logger.log(point_x, point_y, f"enter_team_up({point_x},{point_y})",
                                 self.adb_controller.get_device_screen_picture())
         self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
+
+    def _confirm_mind_restore(self):
+        """
+        确认使用恢复药剂
+        """
+        pass
 
 
 if __name__ == '__main__':
