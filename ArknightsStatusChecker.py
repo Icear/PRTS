@@ -50,6 +50,7 @@ class ArknightsStatusChecker:
         self.battle_settlement_templates = list()
         self.restore_mind_medicine_templates = list()
         self.restore_mind_stone_templates = list()
+        self.fighting_template = list()
 
         template_files = os.listdir(self._template_path)
         self.logger.debug(f'list {len(template_files)} templates')
@@ -85,11 +86,18 @@ class ArknightsStatusChecker:
                 self.logger.debug(f"read template for restore mind stone: {template_data.to_string()}")
                 self.restore_mind_stone_templates.append(template_data)
                 continue
+            # 读取战斗界面模板
+            if template_file.startswith(self.ASC_STATUS_FIGHTING):
+                template_data = self.read_template_data(template_file)
+                self.logger.debug(f"read template for fighting: {template_data.to_string()}")
+                self.fighting_template.append(template_data)
+                continue
         self.logger.info(f"initialized {len(self.level_selection_templates)} template for level selection")
         self.logger.info(f"initialized {len(self.team_up_templates)} template for team up")
         self.logger.info(f"initialized {len(self.battle_settlement_templates)} template for battle settlement")
         self.logger.info(f"initialized {len(self.restore_mind_medicine_templates)} template for restore mind medicine")
         self.logger.info(f"initialized {len(self.restore_mind_stone_templates)} template for restore mind stone")
+        self.logger.info(f"initialized {len(self.fighting_template)} template for fighting")
 
     @staticmethod
     def read_template_data(template_file):
@@ -122,8 +130,26 @@ class ArknightsStatusChecker:
         if self.check_restore_mind_stone_status(image):
             self.logger.info(f"checked status: {self.ASC_STATUS_RESTORE_MIND_STONE}")
             return self.ASC_STATUS_RESTORE_MIND_STONE
+        if self.check_fighting_status(image):
+            self.logger.info(f"checked status: {self.ASC_STATUS_FIGHTING}")
+            return self.ASC_STATUS_FIGHTING
         self.logger.info(f"checked status: {self.ASC_STATUS_UNKNOWN}")
         return self.ASC_STATUS_UNKNOWN
+
+    def check_fighting_status(self, target_image):
+        for template in self.fighting_template:
+            cut_image = target_image[
+                        template.start_y:template.end_y,
+                        template.start_x:template.end_x]
+            # 全局阈值
+            difference = cv.absdiff(cut_image, template.template_data)
+            mean, _ = cv.meanStdDev(difference)
+            result = mean[0][0] < 4
+            self.logger.debug(
+                f"status check show {result} for restore mind stone template {template.to_string()} ")
+            if not result:
+                return False
+        return True
 
     def check_restore_mind_stone_status(self, target_image):
         for template in self.restore_mind_stone_templates:
