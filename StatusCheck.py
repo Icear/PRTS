@@ -99,7 +99,10 @@ if __name__ == '__main__':
     test_string = {
         "level_selection": "enter_team_up",
         "team_up": "enter_game",
-        "battle_settlement": "leave_settlement"
+        "battle_settlement": "leave_settlement",
+        "fighting": "fighting",
+        "restore_mind_medicine": "restore_mind_medicine",
+        "restore_mind_stone": "restore_mind_stone"
     }
 
     for case_name, image in target_images.items():

@@ -8,7 +8,8 @@ import numpy as np
 # 目的是根据当前屏幕的截图分辨出当前正在进行的状态
 # 一共可能有的状态有：
 #   - 关卡选择界面 level_selection
-#       - 体力不足界面 lose_mind
+#       - 恢复体力界面-药剂恢复 restore_mind_medicine
+#       - 恢复体力界面-源石恢复 restore_mind_stone
 #   - 队伍选择界面 team_up
 #   - 战斗界面 fighting
 #   - 战斗结算界面 battle_settlement
@@ -21,7 +22,8 @@ class ArknightsStatusChecker:
     logger = logging.getLogger('ArknightsStatusCheckHelper')
     _template_path = os.path.join(os.getcwd(), 'template')
     ASC_STATUS_LEVEL_SELECTION = 'level_selection'
-    ASC_STATUS_LOSE_MIND = 'lose_mind'
+    ASC_STATUS_RESTORE_MIND_MEDICINE = 'restore_mind_medicine'
+    ASC_STATUS_RESTORE_MIND_STONE = 'restore_mind_stone'
     ASC_STATUS_TEAM_UP = 'team_up'
     ASC_STATUS_FIGHTING = 'fighting'
     ASC_STATUS_BATTLE_SETTLEMENT = 'battle_settlement'
@@ -85,41 +87,6 @@ class ArknightsStatusChecker:
                                                 )
         return template_data
 
-    # 用于生成模板，读取目标图片并弹出窗口以供剪切模板，剪切后输出至当前目录
-    @staticmethod
-    def cut_template(filepath, target_status):
-        image = cv.imread(filepath, cv.IMREAD_GRAYSCALE)
-        # cv.IMREAD_UNCHANGED
-        flags = True
-        start_x = 0
-        start_y = 0
-        end_x = 0
-        end_y = 0
-
-        def cut(event, x, y, flag, param):
-            global flags, start_x, start_y, end_x, end_y
-            if event == cv.EVENT_LBUTTONDOWN:
-                if flags:
-                    start_x = x
-                    start_y = y
-                    flags = False
-                else:
-                    end_x = x
-                    end_y = y
-
-        cv.namedWindow('image_original', cv.WINDOW_NORMAL)
-        cv.setMouseCallback('image_original', cut)
-        cv.imshow('image_original', image)
-        cv.waitKey(0)
-        print(start_x)
-        print(start_y)
-        print(end_x)
-        print(end_y)
-        newimg = image[start_y:end_y, start_x:end_x]
-        cv.imshow('image', newimg)
-        cv.waitKey(0)
-        cv.imwrite(os.path.join(os.getcwd(), f"{target_status}-{start_x}-{start_y}-{end_x}-{end_y}.png"), newimg)
-        cv.destroyAllWindows()
 
     # 通过传入的屏幕截图来确定当前游戏状态
     def check_status(self, screen_shot):
@@ -188,9 +155,3 @@ class ArknightsStatusChecker:
             if not result:
                 return False
         return True
-
-
-if __name__ == '__main__':
-    status_checker = ArknightsStatusChecker()
-    # status_checker.cut_template(
-    #     os.path.join(os.getcwd(), 'test_case', 'log-2020-1-4-13-24-43-leave_summarize_interface(1473,546).png'))

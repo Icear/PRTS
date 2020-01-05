@@ -186,10 +186,16 @@ class ArknightsAutoFighter:
                 self._enter_team_up()
                 self._sleep(random.uniform(3, 5))  # 等待游戏响应
                 continue
-            if status == self.status_checker.ASC_STATUS_LOSE_MIND:
+            if status == self.status_checker.ASC_STATUS_RESTORE_MIND_MEDICINE:
                 # 在体力不足界面
-                # TODO 检查“允许使用体力药剂”标记，不允许则结束，允许则使用体力
-                self.logger.error(f"can't continue due to bad status: {self.status_checker.ASC_STATUS_LOSE_MIND}")
+                # TODO 检查“允许使用体力药剂”标记，不允许则结束，允许则使用药剂
+                self.logger.error(
+                    f"can't continue due to bad status: {self.status_checker.ASC_STATUS_RESTORE_MIND_MEDICINE}")
+                return False
+            if status == self.status_checker.ASC_STATUS_RESTORE_MIND_STONE:
+                # 在体力不足界面
+                self.logger.error(
+                    f"can't continue due to bad status: {self.status_checker.ASC_STATUS_RESTORE_MIND_MEDICINE}")
                 return False
             if status == self.status_checker.ASC_STATUS_TEAM_UP:
                 # 在队伍选择界面
