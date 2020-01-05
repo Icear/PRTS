@@ -96,35 +96,33 @@ class ArknightsAutoFighter:
     logger = logging.getLogger('ArknightsAutoFighter')
 
     device_config = {
-        'emulator': {
-            'enter_team_up_x': 1851,
-            'enter_team_up_x_prefix_start': 0,
-            'enter_team_up_x_prefix_end': 210,
-            'enter_team_up_y': 875,
-            'enter_team_up_y_prefix_start': 0,
-            'enter_team_up_y_prefix_end': 46,
-            'enter_game_x': 1632,
-            'enter_game_x_prefix_start': 0,
-            'enter_game_x_prefix_end': 91,
-            'enter_game_y': 534,
-            'enter_game_y_prefix_start': 0,
-            'enter_game_y_prefix_end': 54,
-            'leave_settlement_x': 1615,
-            'leave_settlement_x_prefix_start': 0,
-            'leave_settlement_x_prefix_end': 148,
-            'leave_settlement_y': 534,
-            'leave_settlement_y_prefix_start': 0,
-            'leave_settlement_y_prefix_end': 63,
-            'confirm_restore_mind_x': 1509,
-            'confirm_restore_mind_x_prefix_start': 0,
-            'confirm_restore_mind_x_prefix_end': 100,
-            'confirm_restore_mind_y': 745,
-            'confirm_restore_mind_y_prefix_start': 0,
-            'confirm_restore_mind_y_prefix_end': 60,
-            'screen_resolution': Screen(1920, 980),
-        }
+        'enter_team_up_x': 1851,
+        'enter_team_up_x_prefix_start': 0,
+        'enter_team_up_x_prefix_end': 210,
+        'enter_team_up_y': 875,
+        'enter_team_up_y_prefix_start': 0,
+        'enter_team_up_y_prefix_end': 46,
+        'enter_game_x': 1632,
+        'enter_game_x_prefix_start': 0,
+        'enter_game_x_prefix_end': 91,
+        'enter_game_y': 534,
+        'enter_game_y_prefix_start': 0,
+        'enter_game_y_prefix_end': 54,
+        'leave_settlement_x': 1615,
+        'leave_settlement_x_prefix_start': 0,
+        'leave_settlement_x_prefix_end': 148,
+        'leave_settlement_y': 534,
+        'leave_settlement_y_prefix_start': 0,
+        'leave_settlement_y_prefix_end': 63,
+        'confirm_restore_mind_x': 1509,
+        'confirm_restore_mind_x_prefix_start': 0,
+        'confirm_restore_mind_x_prefix_end': 100,
+        'confirm_restore_mind_y': 745,
+        'confirm_restore_mind_y_prefix_start': 0,
+        'confirm_restore_mind_y_prefix_end': 60,
+        'screen_resolution': Screen(1920, 980),
     }
-
+    
     status_checker = ArknightsStatusChecker()
 
     def __init__(self, fight_times, allow_use_medicine=False):
@@ -137,7 +135,7 @@ class ArknightsAutoFighter:
         # 初始化日志
         self.picture_logger = self.PictureLogger()
         # 获取设备分辨率
-        self.target_resolution = self.device_config['emulator']['screen_resolution']
+        self.target_resolution = self.device_config['screen_resolution']
         self.target_resolution = self.adb_controller.get_device_resolution()
         # 初始化统计变量
         self.fight_count = 0
@@ -196,6 +194,7 @@ class ArknightsAutoFighter:
                 # 在体力不足界面
                 # 检查“允许使用体力药剂”标记，不允许则结束，允许则使用药剂
                 if self.allow_use_medicine:
+                    self.logger.warning('using medicine to restore mind as intend')
                     self._confirm_mind_restore()  # 使用体力药剂
                     self._sleep(random.uniform(3, 4))  # 等待游戏响应
                     continue
@@ -242,14 +241,14 @@ class ArknightsAutoFighter:
         """
         离开结算界面
         """
-        point_x = self.device_config['phone']['leave_settlement_x'] - random.uniform(
-            self.device_config['phone']['leave_settlement_x_prefix_start'],
-            self.device_config['phone']['leave_settlement_x_prefix_end'])
-        point_y = self.device_config['phone']['leave_settlement_y'] + random.uniform(
-            self.device_config['phone']['leave_settlement_y_prefix_start'],
-            self.device_config['phone']['leave_settlement_y_prefix_end'])
+        point_x = self.device_config['leave_settlement_x'] - random.uniform(
+            self.device_config['leave_settlement_x_prefix_start'],
+            self.device_config['leave_settlement_x_prefix_end'])
+        point_y = self.device_config['leave_settlement_y'] + random.uniform(
+            self.device_config['leave_settlement_y_prefix_start'],
+            self.device_config['leave_settlement_y_prefix_end'])
         point_x, point_y = self._compute_new_point(
-            point_x, point_y, self.device_config['phone']['screen_resolution'], self.target_resolution)
+            point_x, point_y, self.device_config['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
         point_y = int(point_y)
 
@@ -262,14 +261,14 @@ class ArknightsAutoFighter:
         离开剿灭结算页面
         """
         # TODO 分离退出结算界面和退出剿灭结算界面的点击区域数据
-        point_x = self.device_config['phone']['leave_settlement_x'] - random.uniform(
-            self.device_config['phone']['leave_settlement_x_prefix_start'],
-            self.device_config['phone']['leave_settlement_x_prefix_end'])
-        point_y = self.device_config['phone']['leave_settlement_y'] + random.uniform(
-            self.device_config['phone']['leave_settlement_y_prefix_start'],
-            self.device_config['phone']['leave_settlement_y_prefix_end'])
+        point_x = self.device_config['leave_settlement_x'] - random.uniform(
+            self.device_config['leave_settlement_x_prefix_start'],
+            self.device_config['leave_settlement_x_prefix_end'])
+        point_y = self.device_config['leave_settlement_y'] + random.uniform(
+            self.device_config['leave_settlement_y_prefix_start'],
+            self.device_config['leave_settlement_y_prefix_end'])
         point_x, point_y = self._compute_new_point(
-            point_x, point_y, self.device_config['phone']['screen_resolution'], self.target_resolution)
+            point_x, point_y, self.device_config['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
         point_y = int(point_y)
         self.picture_logger.log(point_x, point_y, f"exit proxy fight result interface({point_x},{point_y})",
@@ -280,14 +279,14 @@ class ArknightsAutoFighter:
         """
         队伍选择界面进入游戏界面
         """
-        point_x = self.device_config['phone']['enter_game_x'] - random.uniform(
-            self.device_config['phone']['enter_game_x_prefix_start'],
-            self.device_config['phone']['enter_game_x_prefix_end'])
-        point_y = self.device_config['phone']['enter_game_y'] + random.uniform(
-            self.device_config['phone']['enter_game_y_prefix_start'],
-            self.device_config['phone']['enter_game_y_prefix_end'])
+        point_x = self.device_config['enter_game_x'] - random.uniform(
+            self.device_config['enter_game_x_prefix_start'],
+            self.device_config['enter_game_x_prefix_end'])
+        point_y = self.device_config['enter_game_y'] + random.uniform(
+            self.device_config['enter_game_y_prefix_start'],
+            self.device_config['enter_game_y_prefix_end'])
         point_x, point_y = self._compute_new_point(
-            point_x, point_y, self.device_config['phone']['screen_resolution'], self.target_resolution)
+            point_x, point_y, self.device_config['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
         point_y = int(point_y)
         self.picture_logger.log(point_x, point_y, f"enter_game({point_x},{point_y})",
@@ -299,14 +298,14 @@ class ArknightsAutoFighter:
         从关卡选择界面进入队伍选择界面
         """
 
-        point_x = self.device_config['phone']['enter_team_up_x'] - random.uniform(
-            self.device_config['phone']['enter_team_up_x_prefix_start'],
-            self.device_config['phone']['enter_team_up_x_prefix_end'])
-        point_y = self.device_config['phone']['enter_team_up_y'] + random.uniform(
-            self.device_config['phone']['enter_team_up_y_prefix_start'],
-            self.device_config['phone']['enter_team_up_y_prefix_end'])
+        point_x = self.device_config['enter_team_up_x'] - random.uniform(
+            self.device_config['enter_team_up_x_prefix_start'],
+            self.device_config['enter_team_up_x_prefix_end'])
+        point_y = self.device_config['enter_team_up_y'] + random.uniform(
+            self.device_config['enter_team_up_y_prefix_start'],
+            self.device_config['enter_team_up_y_prefix_end'])
         point_x, point_y = self._compute_new_point(
-            point_x, point_y, self.device_config['phone']['screen_resolution'], self.target_resolution)
+            point_x, point_y, self.device_config['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
         point_y = int(point_y)
         self.picture_logger.log(point_x, point_y, f"enter_team_up({point_x},{point_y})",
@@ -317,7 +316,19 @@ class ArknightsAutoFighter:
         """
         确认使用恢复药剂
         """
-        pass
+        point_x = self.device_config[''] - random.uniform(
+            self.device_config['confirm_restore_mind_x_prefix_start'],
+            self.device_config['confirm_restore_mind_x_prefix_end'])
+        point_y = self.device_config['confirm_restore_mind_y'] + random.uniform(
+            self.device_config['confirm_restore_mind_y_prefix_start'],
+            self.device_config['confirm_restore_mind_y_prefix_end'])
+        point_x, point_y = self._compute_new_point(
+            point_x, point_y, self.device_config['screen_resolution'], self.target_resolution)
+        point_x = int(point_x)
+        point_y = int(point_y)
+        self.picture_logger.log(point_x, point_y, f"confirm_restore_mind({point_x},{point_y})",
+                                self.adb_controller.get_device_screen_picture())
+        self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
 
 
 if __name__ == '__main__':
