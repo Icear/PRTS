@@ -8,7 +8,7 @@ import numpy as np
 # 目的是根据当前屏幕的截图分辨出当前正在进行的状态
 # 一共可能有的状态有：
 #   - 关卡选择界面 level_selection
-#       - 体力不足界面 low_energy
+#       - 体力不足界面 lose_mind
 #   - 队伍选择界面 team_up
 #   - 战斗界面 fighting
 #   - 战斗结算界面 battle_settlement
@@ -21,16 +21,19 @@ class ArknightsStatusChecker:
     logger = logging.getLogger('ArknightsStatusCheckHelper')
     _template_path = os.path.join(os.getcwd(), 'template')
     ASC_STATUS_LEVEL_SELECTION = 'level_selection'
+    ASC_STATUS_LOSE_MIND = 'lose_mind'
     ASC_STATUS_TEAM_UP = 'temp_up'
+    ASC_STATUS_FIGHTING = 'fighting'
     ASC_STATUS_BATTLE_SETTLEMENT = 'battle_settlement'
+    ASC_STATUS_ANNIHILATION_SETTLEMENT = 'annihilation_settlement'
     ASC_STATUS_UNKNOWN = 'unknown'
 
     class TemplateData:
         def __init__(self, start_x, start_y, end_x, end_y, template_data):
-            self.start_x = start_x
-            self.start_y = start_y
-            self.end_x = end_x
-            self.end_y = end_y
+            self.start_x = int(start_x)
+            self.start_y = int(start_y)
+            self.end_x = int(end_x)
+            self.end_y = int(end_y)
             self.template_data = template_data
 
         def to_string(self):
@@ -73,7 +76,7 @@ class ArknightsStatusChecker:
     @staticmethod
     def read_template_data(template_file):
         reg_result = re.match(
-            r'\s*?-(\d*?)-(\d*?)-(\d*?)-(\d*?)-(.)\.png', template_file)
+            r'.*?-(\d*?)-(\d*?)-(\d*?)-(\d*?)\.png', template_file)
         template_data = \
             ArknightsStatusChecker.TemplateData(reg_result.group(1), reg_result.group(2),
                                                 reg_result.group(3), reg_result.group(4),
@@ -120,11 +123,13 @@ class ArknightsStatusChecker:
 
     # 通过传入的屏幕截图来确定当前游戏状态
     def check_status(self, screen_shot):
-        if self.check_level_selection_status(screen_shot):
+        image = cv.imdecode(np.frombuffer(
+            screen_shot, dtype="int8"), cv.IMREAD_UNCHANGED)
+        if self.check_level_selection_status(image):
             return self.ASC_STATUS_LEVEL_SELECTION
-        if self.check_team_up_status(screen_shot):
+        if self.check_team_up_status(image):
             return self.ASC_STATUS_TEAM_UP
-        if self.check_battle_settlement(screen_shot):
+        if self.check_battle_settlement(image):
             return self.ASC_STATUS_BATTLE_SETTLEMENT
         return self.ASC_STATUS_UNKNOWN
 
@@ -184,5 +189,5 @@ class ArknightsStatusChecker:
 
 if __name__ == '__main__':
     status_checker = ArknightsStatusChecker()
-    status_checker.cut_template(
-        os.path.join(os.getcwd(), 'log1', 'log-2020-1-4-13-24-43-leave_summarize_interface(1473,546).png'))
+    # status_checker.cut_template(
+    #     os.path.join(os.getcwd(), 'log1', 'log-2020-1-4-13-24-43-leave_summarize_interface(1473,546).png'))
