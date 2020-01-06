@@ -19,7 +19,6 @@ import numpy as np
 
 
 class ArknightsStatusChecker:
-    logger = logging.getLogger('ArknightsStatusCheckHelper')
     _template_path = os.path.join(os.getcwd(), 'template')
     ASC_STATUS_LEVEL_SELECTION = 'level_selection'
     ASC_STATUS_RESTORE_MIND_MEDICINE = 'restore_mind_medicine'
@@ -45,67 +44,35 @@ class ArknightsStatusChecker:
         #
         # 从template文件夹读取现有模板以及相关参数
         #
-        self.level_selection_templates = list()
-        self.team_up_templates = list()
-        self.battle_settlement_templates = list()
-        self.restore_mind_medicine_templates = list()
-        self.restore_mind_stone_templates = list()
-        self.fighting_template = list()
-        self.annihilation_settlement_template = list()
+        self.logger = logging.getLogger('ArknightsStatusCheckHelper')
+
+        # 根据状态列表生成模板字段
+        self.templates = dict()
+        status_list = list(filter(lambda name: (name.startswith("ASC_STATUS_") and name != 'ASC_STATUS_UNKNOWN'),
+                                  dir(self)))
+        self._status = list(map(lambda name: getattr(self, name), status_list))
+
+        self.logger.info(f"loaded {len(self._status)} status")
+        for status in self._status:
+            self.templates[status] = list()
 
         template_files = os.listdir(self._template_path)
         self.logger.debug(f'list {len(template_files)} templates')
 
+        # 为每个模板寻找其匹配的模板字典字段，并存入对应列表
         for template_file in template_files:
-            # 读取判断关卡选择界面模板
-            if template_file.startswith(self.ASC_STATUS_LEVEL_SELECTION):
-                template_data = self.read_template_data(template_file)
-                self.logger.debug(f"read template for level selection: {template_data.to_string()}")
-                self.level_selection_templates.append(template_data)
-                continue
-            # 读取判断队伍选择界面模板
-            if template_file.startswith(self.ASC_STATUS_TEAM_UP):
-                template_data = self.read_template_data(template_file)
-                self.logger.debug(f"read template for team up: {template_data.to_string()}")
-                self.team_up_templates.append(template_data)
-                continue
-            # 读取结算界面模板
-            if template_file.startswith(self.ASC_STATUS_BATTLE_SETTLEMENT):
-                template_data = self.read_template_data(template_file)
-                self.logger.debug(f"read template for battle settlement: {template_data.to_string()}")
-                self.battle_settlement_templates.append(template_data)
-                continue
-            # 读取恢复理智-药剂界面模板
-            if template_file.startswith(self.ASC_STATUS_RESTORE_MIND_MEDICINE):
-                template_data = self.read_template_data(template_file)
-                self.logger.debug(f"read template for restore mind medicine: {template_data.to_string()}")
-                self.restore_mind_medicine_templates.append(template_data)
-                continue
-            # 读取恢复理智-源石界面模板
-            if template_file.startswith(self.ASC_STATUS_RESTORE_MIND_STONE):
-                template_data = self.read_template_data(template_file)
-                self.logger.debug(f"read template for restore mind stone: {template_data.to_string()}")
-                self.restore_mind_stone_templates.append(template_data)
-                continue
-            # 读取战斗界面模板
-            if template_file.startswith(self.ASC_STATUS_FIGHTING):
-                template_data = self.read_template_data(template_file)
-                self.logger.debug(f"read template for fighting: {template_data.to_string()}")
-                self.fighting_template.append(template_data)
-                continue
-            if template_file.startswith(self.ASC_STATUS_ANNIHILATION_SETTLEMENT):
-                template_data = self.read_template_data(template_file)
-                self.logger.debug(f"read template for annihilation settlement: {template_data.to_string()}")
-                self.annihilation_settlement_template.append(template_data)
-                continue
-        self.logger.info(f"initialized {len(self.level_selection_templates)} template for level selection")
-        self.logger.info(f"initialized {len(self.team_up_templates)} template for team up")
-        self.logger.info(f"initialized {len(self.battle_settlement_templates)} template for battle settlement")
-        self.logger.info(f"initialized {len(self.restore_mind_medicine_templates)} template for restore mind medicine")
-        self.logger.info(f"initialized {len(self.restore_mind_stone_templates)} template for restore mind stone")
-        self.logger.info(f"initialized {len(self.fighting_template)} template for fighting")
-        self.logger.info(
-            f"initialized {len(self.annihilation_settlement_template)} template for annihilation settlement")
+            for status in self._status:
+                if template_file.startswith(status):
+                    # 找到了对应坐标
+                    template_data = self.read_template_data(template_file)
+                    self.logger.debug(f"read template for {status}: {template_data.to_string()}")
+                    self.templates[status].append(template_data)
+                    self.logger.debug(f"load template {template_file} for {status} ")
+                    break
+
+        # 生成读取日志
+        for status in self._status:
+            self.logger.info(f"initialized {len(self.templates[status])} template for {status}")
 
     @staticmethod
     def read_template_data(template_file):
@@ -121,34 +88,24 @@ class ArknightsStatusChecker:
 
     # 通过传入的屏幕截图来确定当前游戏状态
     def check_status(self, screen_shot):
+        # 将读入的图片数据转为灰阶openCV用格式
         image = cv.imdecode(np.frombuffer(
             screen_shot, dtype="int8"), cv.IMREAD_GRAYSCALE)
-        if self.check_level_selection_status(image):
-            self.logger.info(f"checked status: {self.ASC_STATUS_LEVEL_SELECTION}")
-            return self.ASC_STATUS_LEVEL_SELECTION
-        if self.check_team_up_status(image):
-            self.logger.info(f"checked status: {self.ASC_STATUS_TEAM_UP}")
-            return self.ASC_STATUS_TEAM_UP
-        if self.check_battle_settlement(image):
-            self.logger.info(f"checked status: {self.ASC_STATUS_BATTLE_SETTLEMENT}")
-            return self.ASC_STATUS_BATTLE_SETTLEMENT
-        if self.check_restore_mind_medicine_status(image):
-            self.logger.info(f"checked status: {self.ASC_STATUS_RESTORE_MIND_MEDICINE}")
-            return self.ASC_STATUS_RESTORE_MIND_MEDICINE
-        if self.check_restore_mind_stone_status(image):
-            self.logger.info(f"checked status: {self.ASC_STATUS_RESTORE_MIND_STONE}")
-            return self.ASC_STATUS_RESTORE_MIND_STONE
-        if self.check_fighting_status(image):
-            self.logger.info(f"checked status: {self.ASC_STATUS_FIGHTING}")
-            return self.ASC_STATUS_FIGHTING
-        if self.check_annihilation_settlement_status(image):
-            self.logger.info(f"checked status: {self.ASC_STATUS_ANNIHILATION_SETTLEMENT}")
-            return self.ASC_STATUS_ANNIHILATION_SETTLEMENT
+        # 将图片传入每一个状态的匹配函数进行检查，获得匹配结果时返回该状态
+        for status in self._status:
+            # 检查对应状态方法是否存在
+            if hasattr(self, f"check_{status}_status"):
+                detector = getattr(self, f"check_{status}_status", lambda x: False)
+                if detector(image):
+                    self.logger.info(f"checked status: {status}")
+                    return status  # 匹配成功
+            else:
+                self.logger.warning(f"Status checker for status {status} not found! This status can not be detected.")
         self.logger.info(f"checked status: {self.ASC_STATUS_UNKNOWN}")
         return self.ASC_STATUS_UNKNOWN
 
     def check_fighting_status(self, target_image):
-        for template in self.fighting_template:
+        for template in self.templates[self.ASC_STATUS_FIGHTING]:
             cut_image = target_image[
                         template.start_y:template.end_y,
                         template.start_x:template.end_x]
@@ -157,13 +114,13 @@ class ArknightsStatusChecker:
             mean, _ = cv.meanStdDev(difference)
             result = mean[0][0] < 4
             self.logger.debug(
-                f"status check show {result} for restore mind stone template {template.to_string()} ")
+                f"status check show {result} for {self.ASC_STATUS_FIGHTING} template {template.to_string()} ")
             if not result:
                 return False
         return True
 
     def check_restore_mind_stone_status(self, target_image):
-        for template in self.restore_mind_stone_templates:
+        for template in self.templates[self.ASC_STATUS_RESTORE_MIND_STONE]:
             cut_image = target_image[
                         template.start_y:template.end_y,
                         template.start_x:template.end_x]
@@ -172,13 +129,13 @@ class ArknightsStatusChecker:
             difference = cv.absdiff(cut_image, template.template_data)
             result = not np.any(difference)
             self.logger.debug(
-                f"status check show {result} for restore mind stone template {template.to_string()} ")
+                f"status check show {result} for {self.ASC_STATUS_RESTORE_MIND_STONE} template {template.to_string()} ")
             if not result:
                 return False
         return True
 
     def check_annihilation_settlement_status(self, target_image):
-        for template in self.annihilation_settlement_template:
+        for template in self.templates[self.ASC_STATUS_ANNIHILATION_SETTLEMENT]:
             cut_image = target_image[
                         template.start_y:template.end_y,
                         template.start_x:template.end_x]
@@ -188,13 +145,14 @@ class ArknightsStatusChecker:
             mean, std_dev = cv.meanStdDev(difference)
             result = mean[0][0] < 1
             self.logger.debug(
-                f"status check show {result} for restore annihilation settlement template {template.to_string()} ")
+                f"status check show {result} for {self.ASC_STATUS_ANNIHILATION_SETTLEMENT} "
+                f"template {template.to_string()} ")
             if not result:
                 return False
         return True
 
     def check_restore_mind_medicine_status(self, target_image):
-        for template in self.restore_mind_medicine_templates:
+        for template in self.templates[self.ASC_STATUS_RESTORE_MIND_MEDICINE]:
             cut_image = target_image[
                         template.start_y:template.end_y,
                         template.start_x:template.end_x]
@@ -203,13 +161,14 @@ class ArknightsStatusChecker:
             difference = cv.absdiff(cut_image, template.template_data)
             result = not np.any(difference)
             self.logger.debug(
-                f"status check show {result} for restore mind medicine template {template.to_string()} ")
+                f"status check show {result} for {self.ASC_STATUS_RESTORE_MIND_MEDICINE}"
+                f" template {template.to_string()} ")
             if not result:
                 return False
         return True
 
     def check_level_selection_status(self, target_image):
-        for template in self.level_selection_templates:
+        for template in self.templates[self.ASC_STATUS_LEVEL_SELECTION]:
             cut_image = target_image[
                         template.start_y:template.end_y,
                         template.start_x:template.end_x]
@@ -218,13 +177,13 @@ class ArknightsStatusChecker:
             difference = cv.absdiff(cut_image, template.template_data)
             result = not np.any(difference)
             self.logger.debug(
-                f"status check show {result} for level selection template {template.to_string()} ")
+                f"status check show {result} for {self.ASC_STATUS_LEVEL_SELECTION} template {template.to_string()} ")
             if not result:
                 return False
         return True
 
     def check_team_up_status(self, target_image):
-        for template in self.team_up_templates:
+        for template in self.templates[self.ASC_STATUS_TEAM_UP]:
             cut_image = target_image[
                         template.start_y:template.end_y,
                         template.start_x:template.end_x]
@@ -233,13 +192,13 @@ class ArknightsStatusChecker:
             difference = cv.absdiff(cut_image, template.template_data)
             result = not np.any(difference)
             self.logger.debug(
-                f"status check show {result} for team up template {template.to_string()} ")
+                f"status check show {result} for {self.ASC_STATUS_TEAM_UP} template {template.to_string()} ")
             if not result:
                 return False
         return True
 
-    def check_battle_settlement(self, target_image):
-        for template in self.battle_settlement_templates:
+    def check_battle_settlement_status(self, target_image):
+        for template in self.templates[self.ASC_STATUS_BATTLE_SETTLEMENT]:
             # 目标图片切割
             cut_image = target_image[
                         template.start_y:template.end_y,
@@ -255,7 +214,7 @@ class ArknightsStatusChecker:
             mean, _ = cv.meanStdDev(difference)
             result = mean[0][0] < 1
             self.logger.debug(
-                f"status check show {result} for team up template {template.to_string()} ")
+                f"status check show {result} for {self.ASC_STATUS_BATTLE_SETTLEMENT} template {template.to_string()} ")
             if not result:
                 return False
         return True

@@ -20,11 +20,11 @@ class ArknightsAutoFighter:
                 self.length, self.width = self.width, self.length
 
     class ADBController:
-        logger = logging.getLogger('ADBController')
         adb_path = 'adb'
         adb_prefix = ''  # prefix parameters
 
         def __init__(self):
+            self.logger = logging.getLogger('ADBController')
             os.system(f"{self.adb_path} kill-server")
             os.system(f"{self.adb_path} connect 127.0.0.1:7555")
             self.adb_prefix = '-s 127.0.0.1:7555'
@@ -57,7 +57,6 @@ class ArknightsAutoFighter:
             os.system(f"{self.adb_path} {self.adb_prefix} shell input tap {x} {y}")
 
     class PictureLogger:
-        logger = logging.getLogger('PictureLogger')
         log_delete_last = True
         log_path = os.path.join(os.getcwd(), 'log')
         log_line_color = (255, 0, 0)
@@ -66,6 +65,8 @@ class ArknightsAutoFighter:
         log_text_scale = 2
 
         def __init__(self):
+            self.logger = logging.getLogger('PictureLogger')
+
             # 清理日志
             if os.path.exists(self.log_path):
                 if self.log_delete_last:
@@ -92,8 +93,6 @@ class ArknightsAutoFighter:
             for file in os.listdir(self.log_path):
                 os.remove(os.path.join(self.log_path, file))
             self.logger.info('log cleaned')
-
-    logger = logging.getLogger('ArknightsAutoFighter')
 
     device_config = {
         'enter_team_up_x': 1851,
@@ -129,13 +128,14 @@ class ArknightsAutoFighter:
         'screen_resolution': Screen(1920, 980),
     }
 
-    status_checker = ArknightsStatusChecker()
-
     def __init__(self, fight_times, allow_use_medicine=False):
         """
         :param fight_times: 刷的次数，0为刷到体力不足
         :param allow_use_medicine:  是否允许使用回体力药剂
         """
+        self.logger = logging.getLogger('ArknightsAutoFighter')
+        # 初始化StatusChekcer
+        self.status_checker = ArknightsStatusChecker()
         # 连接并初始化设备
         self.adb_controller = self.ADBController()
         # 初始化日志
@@ -341,7 +341,9 @@ class ArknightsAutoFighter:
 
 
 if __name__ == '__main__':
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+                        format=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
+                        datefmt='%m/ %d /%Y %I:%M:%S %p')
 
     print(
         '''
