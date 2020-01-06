@@ -209,7 +209,7 @@ class ArknightsAutoFighter:
             if status == self.status_checker.ASC_STATUS_RESTORE_MIND_STONE:
                 # 在体力不足界面
                 self.logger.error(
-                    f"can't continue due to bad status: {self.status_checker.ASC_STATUS_RESTORE_MIND_MEDICINE}")
+                    f"can't continue due to bad status: {self.status_checker.ASC_STATUS_RESTORE_MIND_STONE}")
                 return False
             if status == self.status_checker.ASC_STATUS_TEAM_UP:
                 # 在队伍选择界面
@@ -251,7 +251,7 @@ class ArknightsAutoFighter:
         """
         离开结算界面
         """
-        point_x = self.device_config['leave_settlement_x'] - random.uniform(
+        point_x = self.device_config['leave_settlement_x'] + random.uniform(
             self.device_config['leave_settlement_x_prefix_start'],
             self.device_config['leave_settlement_x_prefix_end'])
         point_y = self.device_config['leave_settlement_y'] + random.uniform(
@@ -325,7 +325,7 @@ class ArknightsAutoFighter:
         """
         确认使用恢复药剂
         """
-        point_x = self.device_config[''] - random.uniform(
+        point_x = self.device_config['confirm_restore_mind_x'] - random.uniform(
             self.device_config['confirm_restore_mind_x_prefix_start'],
             self.device_config['confirm_restore_mind_x_prefix_end'])
         point_y = self.device_config['confirm_restore_mind_y'] + random.uniform(
@@ -353,5 +353,5 @@ if __name__ == '__main__':
                          |___/                                                |___/
        '''
     )
-    af = ArknightsAutoFighter(0)
+    af = ArknightsAutoFighter(0, True)
     af.auto_fight()
