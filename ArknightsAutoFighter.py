@@ -244,7 +244,7 @@ class ArknightsAutoFighter:
                     self.picture_logger.log(1, 1, "unrecognized status for ArkngithsStatusChecker",
                                             self.adb_controller.get_device_screen_picture())
                     return False
-                self._sleep(5)
+                self._sleep(10)
                 continue
 
     def _leave_settlement(self):
@@ -353,5 +353,5 @@ if __name__ == '__main__':
                          |___/                                                |___/
        '''
     )
-    af = ArknightsAutoFighter(0, True)
+    af = ArknightsAutoFighter(0, False)
     af.auto_fight()

@@ -114,6 +114,29 @@ def test_restore_mind_stone(target_image):
     return result
 
 
+def test_annihilation_settlement(target_image):
+    #
+    # 剿灭结算模板
+    #
+    template_image = cv.imread(
+        os.path.join(os.getcwd(), 'template', 'annihilation_settlement-329-392-441-423.png'), cv.IMREAD_GRAYSCALE)
+
+    cut_image = target_image[392:423, 329:441]
+
+    # 全局阈值
+    difference = cv.absdiff(cut_image, template_image)
+    mean, std_dev = cv.meanStdDev(difference)
+    # print(mean)
+    # print(std_dev)
+    result = mean[0][0] < 1
+    print(result)
+    # cv.imshow('cut_image', cut_image)
+    # cv.imshow('template_image', template_image)
+    # cv.imshow('difference', difference)
+    # cv.waitKey(0)
+    return result
+
+
 def test_fighting(target_image):
     #
     # 战斗界面模板
@@ -156,7 +179,7 @@ if __name__ == '__main__':
     success_count = 0
     fail_count = 0
 
-    test_target = 'fighting'
+    test_target = 'annihilation_settlement'
     test_active_only = True
     test_method = {
         "level_selection": test_level_selection,
@@ -165,6 +188,7 @@ if __name__ == '__main__':
         "restore_mind_medicine": test_restore_mind_medicine,
         "restore_mind_stone": test_restore_mind_stone,
         "fighting": test_fighting,
+        "annihilation_settlement": test_annihilation_settlement,
     }
     test_string = {
         "level_selection": "enter_team_up",
@@ -173,6 +197,7 @@ if __name__ == '__main__':
         "fighting": "fighting",
         "restore_mind_medicine": "restore_mind_medicine",
         "restore_mind_stone": "restore_mind_stone",
+        "annihilation_settlement": "annihilation_settlement",
     }
 
     for case_name, image in target_images.items():

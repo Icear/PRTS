@@ -43,5 +43,5 @@ def cut_template(filepath, target_status):
 
 if __name__ == '__main__':
     cut_template(
-        os.path.join(os.getcwd(), 'test_case', 'fighting_MuMu20200105200255.png'),
-        ArknightsStatusChecker.ASC_STATUS_FIGHTING)
+        os.path.join(os.getcwd(), 'test_case', 'MuMu2020010613annihilation_settlement_2220.png'),
+        ArknightsStatusChecker.ASC_STATUS_ANNIHILATION_SETTLEMENT)
