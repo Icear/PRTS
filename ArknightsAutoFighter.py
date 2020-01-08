@@ -9,7 +9,7 @@ import datetime
 import logging
 import sys
 from ArknightsStatusChecker import ArknightsStatusChecker
-
+import argparse
 
 class ArknightsAutoFighter:
     class Screen:
@@ -340,6 +340,12 @@ class ArknightsAutoFighter:
         self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
 
 
+parser = argparse.ArgumentParser(description='Arkngihts auto fighter')
+parser.add_argument('--times', '-t', help='战斗次数，0表示刷至体力耗尽，默认0', default=0)
+parser.add_argument('--medicine', '-m', help='允许使用体力药水，认为否', default=False)
+args = parser.parse_args()
+
+
 if __name__ == '__main__':
     logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                         format=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
@@ -355,5 +361,6 @@ if __name__ == '__main__':
                          |___/                                                |___/
        '''
     )
-    af = ArknightsAutoFighter(0, False)
+
+    af = ArknightsAutoFighter(args.times, args.medicine)
     af.auto_fight()
