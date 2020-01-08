@@ -143,7 +143,7 @@ class ArknightsStatusChecker:
             # 全局阈值
             difference = cv.absdiff(cut_image, template.template_data)
             mean, std_dev = cv.meanStdDev(difference)
-            result = mean[0][0] < 1
+            result = mean[0][0] < 2
             self.logger.debug(
                 f"status check show {result} for {self.ASC_STATUS_ANNIHILATION_SETTLEMENT} "
                 f"template {template.to_string()} ")
