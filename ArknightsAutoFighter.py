@@ -341,8 +341,8 @@ class ArknightsAutoFighter:
 
 
 parser = argparse.ArgumentParser(description='Arkngihts auto fighter')
-parser.add_argument('--times', '-t', help='战斗次数，0表示刷至体力耗尽，默认0', default=0)
-parser.add_argument('--medicine', '-m', help='允许使用体力药水，认为否', default=False)
+parser.add_argument('--times', '-t', help='战斗次数，0表示刷至体力耗尽，默认为0', default=0)
+parser.add_argument('--medicine', '-m', help='允许使用体力药水来恢复体力，默认为否', default=False)
 args = parser.parse_args()
 
 
@@ -361,6 +361,15 @@ if __name__ == '__main__':
                          |___/                                                |___/
        '''
     )
+    if args.medicine:
+        logging.warning("allow using medicine to recover mind")
+    else:
+        logging.warning("disable using medcine")
+
+    if args.times != 0:
+        logging.warning(f"fight times set to {args.times}")
+    else:
+        logging.warning("unset fight times, script will keep running util mind uses up")
 
     af = ArknightsAutoFighter(args.times, args.medicine)
     af.auto_fight()
