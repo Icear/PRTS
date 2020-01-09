@@ -109,10 +109,16 @@ class ArknightsStatusChecker:
             cut_image = target_image[
                         template.start_y:template.end_y,
                         template.start_x:template.end_x]
-            # 全局阈值
-            difference = cv.absdiff(cut_image, template.template_data)
+            # Otsu 阈值
+            _, cut_image_new = cv.threshold(cut_image, 170, 255,
+                                            cv.THRESH_BINARY + cv.THRESH_OTSU)
+            _, template_image_new = cv.threshold(template.template_data, 170, 255,
+                                                 cv.THRESH_BINARY + cv.THRESH_OTSU)
+
+            difference = cv.absdiff(cut_image_new, template_image_new)
             mean, _ = cv.meanStdDev(difference)
-            result = mean[0][0] < 5
+            result = mean[0][0] < 2
+            self.logger.debug(f"fighting checker get mean of difference: {mean}")
             self.logger.debug(
                 f"status check show {result} for {self.ASC_STATUS_FIGHTING} template {template.to_string()} ")
             if not result:
@@ -144,6 +150,7 @@ class ArknightsStatusChecker:
             difference = cv.absdiff(cut_image, template.template_data)
             mean, std_dev = cv.meanStdDev(difference)
             result = mean[0][0] < 2
+            self.logger.debug(f"annihilation settlement checker get mean of difference: {mean}")
             self.logger.debug(
                 f"status check show {result} for {self.ASC_STATUS_ANNIHILATION_SETTLEMENT} "
                 f"template {template.to_string()} ")
