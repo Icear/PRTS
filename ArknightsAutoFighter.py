@@ -11,6 +11,7 @@ import sys
 from ArknightsStatusChecker import ArknightsStatusChecker
 import argparse
 
+
 class ArknightsAutoFighter:
     class Screen:
         def __init__(self, length_x, width_y):
