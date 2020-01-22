@@ -145,7 +145,7 @@ class ArknightsAutoFighter:
         self.target_resolution = self.device_config['screen_resolution']
         self.target_resolution = self.adb_controller.get_device_resolution()
         # 初始化统计变量
-        self.fight_count = 0
+        self.fight_count = 1
         self.target_game_times = fight_times
         self.allow_use_medicine = allow_use_medicine
 
@@ -167,7 +167,7 @@ class ArknightsAutoFighter:
         while self._auto_fight_once():
             self.fight_count += 1
             self.logger.warning(f"end the {self.fight_count}/{self.target_game_times} fights")
-            if self.fight_count >= self.target_game_times != 0:
+            if self.fight_count > int(self.target_game_times) != 0:
                 # 次数达成，结束
                 logging.info('finished')
                 return
@@ -216,7 +216,7 @@ class ArknightsAutoFighter:
                 # 在队伍选择界面
                 # 尝试进入战斗界面
                 self._enter_game()
-                self._sleep(random.uniform(3, 5))  # 等待游戏响应
+                self._sleep(random.uniform(6, 10))  # 等待游戏响应
                 continue
             if status == self.status_checker.ASC_STATUS_FIGHTING:
                 # 在战斗界面
@@ -348,7 +348,7 @@ args = parser.parse_args()
 
 
 if __name__ == '__main__':
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG,
                         format=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
                         datefmt='%m/ %d /%Y %I:%M:%S %p')
 
