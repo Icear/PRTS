@@ -1,7 +1,8 @@
 import cv2 as cv
 import os
+import numpy
 from ArknightsStatusChecker import ArknightsStatusChecker
-
+from ArknightsAutoFighter import ArknightsAutoFighter
 flags = True
 start_x = 0
 start_y = 0
@@ -10,8 +11,15 @@ end_y = 0
 
 
 # 用于生成模板，读取目标图片并弹出窗口以供剪切模板，剪切后输出至当前目录
-def cut_template(filepath, target_status):
-    image = cv.imread(filepath, cv.IMREAD_GRAYSCALE)
+def cut_template(target_status):
+
+    # add part
+    autofight = ArknightsAutoFighter(1,False)
+    adb = autofight.ADBController()
+    adb.wait_for_device()
+    screenShot = adb.get_device_screen_picture()
+    image = cv.imdecode(numpy.frombuffer(
+                screenShot, dtype="int8"), cv.IMREAD_UNCHANGED)
 
     # cv.IMREAD_UNCHANGED
 
@@ -42,6 +50,4 @@ def cut_template(filepath, target_status):
 
 
 if __name__ == '__main__':
-    cut_template(
-        os.path.join(os.getcwd(), 'test_case', 'MuMu2020010613annihilation_settlement_2220.png'),
-        ArknightsStatusChecker.ASC_STATUS_ANNIHILATION_SETTLEMENT)
+    cut_template(ArknightsStatusChecker.ASC_STATUS_BATTLE_SETTLEMENT)
