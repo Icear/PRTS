@@ -27,8 +27,9 @@ class ArknightsAutoFighter:
         def __init__(self):
             self.logger = logging.getLogger('ADBController')
             os.system(f"{self.adb_path} kill-server")
-            os.system(f"{self.adb_path} connect 127.0.0.1:7555")
-            self.adb_prefix = '-s 127.0.0.1:7555'
+            # os.system(f"{self.adb_path} connect 127.0.0.1:7555")
+            # self.adb_prefix = '-s 127.0.0.1:7555'
+            self.adb_prefix = '-s emulator-5564'
             self.wait_for_device()
 
         def get_device_screen_picture(self):
@@ -187,7 +188,8 @@ class ArknightsAutoFighter:
         status = ''
         while True:
             last_status = status
-            status = self.status_checker.check_status(self.adb_controller.get_device_screen_picture())
+            screen_cap = self.adb_controller.get_device_screen_picture() # 取得截图
+            status = self.status_checker.check_status(screen_cap) # 检查状态
             if status == self.status_checker.ASC_STATUS_LEVEL_SELECTION:
                 # 在关卡选择界面
                 if fight_finished:
@@ -243,7 +245,7 @@ class ArknightsAutoFighter:
                     # 连续2次检查失败则报错
                     self.logger.error(f"error, unrecognized status, check out log for screen shot")
                     self.picture_logger.log(1, 1, "unrecognized status for ArkngithsStatusChecker",
-                                            self.adb_controller.get_device_screen_picture())
+                                            screen_cap)
                     return False
                 self._sleep(10)
                 continue
