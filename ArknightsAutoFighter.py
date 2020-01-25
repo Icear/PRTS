@@ -166,8 +166,8 @@ class ArknightsAutoFighter:
         # 循环调用auto_fight_once 来进行战斗
         self.logger.warning(f"start the {self.fight_count}/{self.target_game_times} fights")
         while self._auto_fight_once():
-            self.fight_count += 1
             self.logger.warning(f"end the {self.fight_count}/{self.target_game_times} fights")
+            self.fight_count += 1
             if self.fight_count > int(self.target_game_times) != 0:
                 # 次数达成，结束
                 logging.info('finished')
