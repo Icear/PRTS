@@ -60,7 +60,7 @@ class ArknightsAutoFighter:
 
     class PictureLogger:
         log_delete_last = True
-        log_path = os.path.join(os.getcwd(), 'log')
+        log_path = os.path.join(os.getcwd(), 'log', 'pic_log')
         log_line_color = (255, 0, 0)
         log_line_thickness = 2
         log_font = cv.FONT_HERSHEY_SIMPLEX
@@ -74,7 +74,7 @@ class ArknightsAutoFighter:
                 if self.log_delete_last:
                     self._delete_old_log()
             else:
-                os.mkdir(self.log_path)
+                os.makedirs(self.log_path)
 
         def log(self, point_x, point_y, tag, picture_data):
             log_time = datetime.datetime.now()
@@ -350,9 +350,11 @@ args = parser.parse_args()
 
 
 if __name__ == '__main__':
-    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG,
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                         format=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
                         datefmt='%m/ %d /%Y %I:%M:%S %p')
+    # logging.basicConfig(format=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
+    #                     datefmt='%m/ %d /%Y %I:%M:%S %p')
 
     print(
         '''

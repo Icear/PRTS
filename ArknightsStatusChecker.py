@@ -41,11 +41,19 @@ class ArknightsStatusChecker:
             return f"start_x: {self.start_x}, start_y: {self.start_y}, end_x: {self.end_x}, end_y: {self.end_y}"
 
     def __init__(self):
+        
+        # 配置 log
+        self.logger = logging.getLogger('ArknightsStatusCheckHelper')
+        file_handler = logging.FileHandler(
+            os.path.join(os.getcwd(),'log','ArknightsStatusChecker.log'),mode='w'
+        ) # 加入额外 file handler 写入 DEBUG 级 log 到文件
+        file_handler.setFormatter(logging.Formatter(fmt=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
+                        datefmt='%m/ %d /%Y %I:%M:%S %p'))
+        file_handler.setLevel(logging.DEBUG)
+        self.logger.addHandler(file_handler)
         #
         # 从template文件夹读取现有模板以及相关参数
         #
-        self.logger = logging.getLogger('ArknightsStatusCheckHelper')
-
         # 根据状态列表生成模板字段
         self.templates = dict()
         status_list = list(filter(lambda name: (name.startswith("ASC_STATUS_") and name != 'ASC_STATUS_UNKNOWN'),
