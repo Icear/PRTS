@@ -43,8 +43,10 @@ class ArknightsAutoFighter:
             with os.popen(f"{self.adb_path} {self.adb_prefix} shell wm size") as reply:
                 pattern = re.compile(r'.*? (\d*?)x(\d*?)$')
                 match_result = pattern.match(reply.readline())
-                screen_resolution = ArknightsAutoFighter.Screen(match_result[1], match_result[2])
-            self.logger.info(f"screen size is {screen_resolution.length}x{screen_resolution.width}")
+                screen_resolution = ArknightsAutoFighter.Screen(
+                    match_result[1], match_result[2])
+            self.logger.info(
+                f"screen size is {screen_resolution.length}x{screen_resolution.width}")
             return screen_resolution
 
         def wait_for_device(self):
@@ -56,7 +58,8 @@ class ArknightsAutoFighter:
             x = round(x, 0)
             y = round(y, 0)
             self.logger.info(f"tap({x}, {y})")
-            os.system(f"{self.adb_path} {self.adb_prefix} shell input tap {x} {y}")
+            os.system(
+                f"{self.adb_path} {self.adb_prefix} shell input tap {x} {y}")
 
     class PictureLogger:
         log_delete_last = True
@@ -147,8 +150,8 @@ class ArknightsAutoFighter:
         self.target_resolution = self.adb_controller.get_device_resolution()
         # 初始化统计变量
         self.fight_count = 1
-        self.target_game_times = fight_times
-        self.allow_use_medicine = allow_use_medicine
+        self.target_game_times = int(fight_times)
+        self.allow_use_medicine = bool(allow_use_medicine)
 
     @staticmethod
     def _compute_new_point(point_x, point_y, original_resolution, new_resolution):
@@ -164,11 +167,13 @@ class ArknightsAutoFighter:
 
     def auto_fight(self):
         # 循环调用auto_fight_once 来进行战斗
-        self.logger.warning(f"start the {self.fight_count}/{self.target_game_times} fights")
+        self.logger.warning(
+            f"start the {self.fight_count}/{self.target_game_times} fights")
         while self._auto_fight_once():
-            self.logger.warning(f"end the {self.fight_count}/{self.target_game_times} fights")
+            self.logger.warning(
+                f"end the {self.fight_count}/{self.target_game_times} fights")
             self.fight_count += 1
-            if self.fight_count > int(self.target_game_times) != 0:
+            if self.fight_count > self.target_game_times != 0:
                 # 次数达成，结束
                 logging.info('finished')
                 return
@@ -188,8 +193,8 @@ class ArknightsAutoFighter:
         status = ''
         while True:
             last_status = status
-            screen_cap = self.adb_controller.get_device_screen_picture() # 取得截图
-            status = self.status_checker.check_status(screen_cap) # 检查状态
+            screen_cap = self.adb_controller.get_device_screen_picture()  # 取得截图
+            status = self.status_checker.check_status(screen_cap)  # 检查状态
             if status == self.status_checker.ASC_STATUS_LEVEL_SELECTION:
                 # 在关卡选择界面
                 if fight_finished:
@@ -202,7 +207,8 @@ class ArknightsAutoFighter:
                 # 在体力不足界面
                 # 检查“允许使用体力药剂”标记，不允许则结束，允许则使用药剂
                 if self.allow_use_medicine:
-                    self.logger.warning('using medicine to restore mind as intend')
+                    self.logger.warning(
+                        'using medicine to restore mind as intend')
                     self._confirm_mind_restore()  # 使用体力药剂
                     self._sleep(random.uniform(3, 4))  # 等待游戏响应
                     continue
@@ -218,7 +224,7 @@ class ArknightsAutoFighter:
                 # 在队伍选择界面
                 # 尝试进入战斗界面
                 self._enter_game()
-                self._sleep(random.uniform(6, 10))  # 等待游戏响应
+                self._sleep(random.uniform(10, 20))  # 等待游戏响应
                 continue
             if status == self.status_checker.ASC_STATUS_FIGHTING:
                 # 在战斗界面
@@ -241,13 +247,14 @@ class ArknightsAutoFighter:
                 continue
             if status == self.status_checker.ASC_STATUS_UNKNOWN:
                 # 未知状态，等待五秒后再次检查
+                self.picture_logger.log(1, 1, "unrecognized status for ArkngithsStatusChecker",
+                                        screen_cap)
                 if last_status == status:
                     # 连续2次检查失败则报错
-                    self.logger.error(f"error, unrecognized status, check out log for screen shot")
-                    self.picture_logger.log(1, 1, "unrecognized status for ArkngithsStatusChecker",
-                                            screen_cap)
+                    self.logger.error(
+                        f"error, unrecognized status, check out log for screen shot")
                     return False
-                self._sleep(10)
+                self._sleep(20)
                 continue
 
     def _leave_settlement(self):
@@ -344,8 +351,9 @@ class ArknightsAutoFighter:
 
 
 parser = argparse.ArgumentParser(description='Arkngihts auto fighter')
-parser.add_argument('--times', '-t', help='战斗次数，0表示刷至体力耗尽，默认为0', default=0)
-parser.add_argument('--medicine', '-m', help='允许使用体力药水来恢复体力，默认为否', default=False)
+parser.add_argument('-t', '--times',  help='战斗次数，0表示刷至体力耗尽，默认为0', type=int, default=0)
+parser.add_argument('-m', '--medicine',  help='允许使用体力药水来恢复体力，默认为否',
+                    default=False, action='store_true')
 args = parser.parse_args()
 
 
@@ -374,7 +382,8 @@ if __name__ == '__main__':
     if args.times != 0:
         logging.warning(f"fight times set to {args.times}")
     else:
-        logging.warning("unset fight times, script will keep running util mind uses up")
+        logging.warning(
+            "unset fight times, script will keep running util mind uses up")
 
     af = ArknightsAutoFighter(args.times, args.medicine)
     af.auto_fight()
