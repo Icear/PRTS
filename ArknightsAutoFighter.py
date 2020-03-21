@@ -51,7 +51,7 @@ class ArknightsAutoFighter:
 
         def wait_for_device(self):
             self.logger.info('waiting for device...')
-            os.system(f"{self.adb_path} {self.adb_prefix} wait-for-device")
+            os.system(f"{self.adb_path} wait-for-device")
             self.logger.info('device connected')
 
         def click(self, x, y):
@@ -229,7 +229,7 @@ class ArknightsAutoFighter:
             if status == self.status_checker.ASC_STATUS_FIGHTING:
                 # 在战斗界面
                 # 等待5秒后重新检查
-                self._sleep(5)
+                self._sleep(10)
                 continue
             if status == self.status_checker.ASC_STATUS_ANNIHILATION_SETTLEMENT:
                 # 在剿灭结算界面
@@ -246,7 +246,7 @@ class ArknightsAutoFighter:
                 fight_finished = True
                 continue
             if status == self.status_checker.ASC_STATUS_UNKNOWN:
-                # 未知状态，等待五秒后再次检查
+                # 未知状态，等待二十秒后再次检查
                 self.picture_logger.log(1, 1, "unrecognized status for ArkngithsStatusChecker",
                                         screen_cap)
                 if last_status == status:
