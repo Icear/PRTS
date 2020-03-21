@@ -227,7 +227,7 @@ class ArknightsStatusChecker:
 
             difference = cv.absdiff(cut_image_new, template_image_new)
             mean, _ = cv.meanStdDev(difference)
-            result = mean[0][0] < 1
+            result = mean[0][0] < 5
             self.logger.debug(
                 f"status check show {result} for {self.ASC_STATUS_BATTLE_SETTLEMENT} template {template.to_string()} ")
             if not result:
