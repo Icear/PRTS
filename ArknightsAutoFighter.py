@@ -354,6 +354,7 @@ parser = argparse.ArgumentParser(description='Arkngihts auto fighter')
 parser.add_argument('-t', '--times',  help='战斗次数，0表示刷至体力耗尽，默认为0', type=int, default=0)
 parser.add_argument('-m', '--medicine',  help='允许使用体力药水来恢复体力，默认为否',
                     default=False, action='store_true')
+parser.add_argument('-c', '--callback', help='程序完成后执行的回调命令')
 args = parser.parse_args()
 
 
@@ -384,6 +385,14 @@ if __name__ == '__main__':
     else:
         logging.warning(
             "unset fight times, script will keep running util mind uses up")
+    
+    if args.callback:
+        logging.warning(f"recieve callback command:{args.callback}, recorded")
 
     af = ArknightsAutoFighter(args.times, args.medicine)
     af.auto_fight()
+    if args.callback:
+        loging.warning("executing callback command...")
+        loging.warning(args.callback)
+        os.system(args.callback)
+        logging.warning("done")
