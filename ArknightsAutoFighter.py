@@ -392,7 +392,7 @@ if __name__ == '__main__':
     af = ArknightsAutoFighter(args.times, args.medicine)
     af.auto_fight()
     if args.callback:
-        loging.warning("executing callback command...")
-        loging.warning(args.callback)
+        logging.warning("executing callback command...")
+        logging.warning(args.callback)
         os.system(args.callback)
         logging.warning("done")
