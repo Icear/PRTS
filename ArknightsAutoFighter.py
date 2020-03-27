@@ -367,13 +367,13 @@ if __name__ == '__main__':
     # 设置写入 DEBUG 级 log 到文件
     logging.basicConfig(level=logging.DEBUG,
                         format=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
-                        datefmt='%m/ %d /%Y %I:%M:%S %p',
+                        datefmt='%Y/%m/%d %I:%M:%S %p',
                         filename=os.path.join(os.getcwd(),'log','ArknightsAutoFighter.log')
                         )
     # 设置额外 handle 输出至 console，info 级别
     consoleLog = logging.StreamHandler(stream=sys.stdout)
     consoleLog.setLevel(logging.INFO)
-    formatter = logging.Formatter(fmt=' %(asctime)s %(levelname)s: %(module)s: %(message)s')
+    formatter = logging.Formatter(fmt=' %(asctime)s %(levelname)s: %(module)s: %(message)s', datefmt='%Y/%m/%d %I:%M:%S %p')
     consoleLog.setFormatter(fmt=formatter)
     logging.getLogger().addHandler(consoleLog)
 
