@@ -27,10 +27,11 @@ Now the function has to work with proper template set up in single resolution, I
 
 ## Install
 
-> git clone https://github.com/Icear/AutoFighter
-> cd AutoFighter
-> pip3 install -r ./requirements.txt
-
+```
+git clone https://github.com/Icear/AutoFighter
+cd AutoFighter
+pip3 install -r ./requirements.txt
+```
 ## Pre-setup
 
 ### Set up emulator
