@@ -361,11 +361,14 @@ args = parser.parse_args()
 
 
 if __name__ == '__main__':
-    # 写入 DEBUG 级 log 到文件
+    # 清理 log
+    if(os.path.exists(os.path.join(os.getcwd(),'log','ArknightsAutoFighter.log'))):
+        os.remove(os.path.join(os.getcwd(),'log','ArknightsAutoFighter.log'))
+    # 设置写入 DEBUG 级 log 到文件
     logging.basicConfig(level=logging.DEBUG,
                         format=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
                         datefmt='%m/ %d /%Y %I:%M:%S %p',
-                        filename=os.path.join(os.getcwd(),'log','ArknightsStatusChecker.log')
+                        filename=os.path.join(os.getcwd(),'log','ArknightsAutoFighter.log')
                         )
     # 设置额外 handle 输出至 console，info 级别
     consoleLog = logging.StreamHandler(stream=sys.stdout)
