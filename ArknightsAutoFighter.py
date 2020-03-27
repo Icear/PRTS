@@ -389,7 +389,7 @@ if __name__ == '__main__':
     )
 
     if args.medicine:
-        logging.warning("allow using medicine to recover mind")
+        logging.warning("allow using medicine to restore mind")
     else:
         logging.warning("disable using medcine")
 
