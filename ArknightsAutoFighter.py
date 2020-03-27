@@ -25,11 +25,11 @@ class ArknightsAutoFighter:
         def __init__(self):
             self.logger = logging.getLogger('ADBController')
             
-            # self.logger.info(f"resetting ADB server...")
-            # output, error = self.exec([self.adb_path, "kill-server"])
-            # self.logger.debug(f"kill server, result: {output}, stderr: {error}")
-            # output, error = self.exec([self.adb_path, "start-server"])
-            # self.logger.debug(f"start server, result: {output}, stderr {error}")
+            self.logger.info(f"resetting ADB server...")
+            output, error = self.exec([self.adb_path, "kill-server"])
+            self.logger.debug(f"kill server, result: {output}, stderr: {error}")
+            output, error = self.exec([self.adb_path, "start-server"])
+            self.logger.debug(f"start server, result: {output}, stderr {error}")
             
             # self.adb_prefix = '-s 127.0.0.1:7555'
             self.adb_prefix = ["-s", "emulator-5564"] # prefix parameters
@@ -37,6 +37,9 @@ class ArknightsAutoFighter:
 
         def get_device_screen_picture(self):
             output, error = self.exec([self.adb_path] + self.adb_prefix + ["exec-out", "screencap", "-p"])
+            if error != '':
+                self.logger.error(f"command get_device_screen_picture error: {error}")
+                exit(-1)
             self.logger.debug(f"get screen pic, stderr: {error}")
             return output
 
@@ -44,6 +47,9 @@ class ArknightsAutoFighter:
             self.logger.info('getting device screen resolution...')
             pattern = re.compile(r'.*? (\d*?)x(\d*?)\r\n$')
             output, error = self.exec([self.adb_path] + self.adb_prefix + ["shell", "wm", "size"])
+            if error != '':
+                self.logger.error(f"command get_device_resolution error: {error}")
+                exit(-1)
             result = bytes.decode(output)
             self.logger.debug(f"check resolution, result: {result}, stderr: {error}")
             match_result = pattern.match(result)
@@ -57,6 +63,9 @@ class ArknightsAutoFighter:
             self.logger.info('waiting for device...')
             output, error = self.exec([self.adb_path] + self.adb_prefix + ["wait-for-device"])
             self.logger.debug(f"waiting for device result: {output}, stderr: {error} ")
+            if error != '':
+                self.logger.error(f"command wait_for_device error: {error}")
+                exit(-1)
             self.logger.info('device connected')
 
         def click(self, x, y):
@@ -64,12 +73,15 @@ class ArknightsAutoFighter:
             y = round(y, 0)
             self.logger.info(f"tap({x}, {y})")
             output, error = self.exec([self.adb_path] + self.adb_prefix + ["shell", "input", "tap", str(x), str(y)])
+            if error != '':
+                self.logger.error(f"command click error: {error}")
+                exit(-1)
             self.logger.debug(f"click result: {output}")
         
         def exec(self, command):
             with subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as pipe:
                 stdout, stderr = pipe.communicate()
-            return stdout, stderr
+            return stdout, bytes.decode(stderr)
 
     class PictureLogger:
         log_delete_last = True
