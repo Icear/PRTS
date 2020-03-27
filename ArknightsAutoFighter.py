@@ -21,7 +21,7 @@ class ArknightsAutoFighter:
                 self.length, self.width = self.width, self.length
 
     class ADBController:
-        adb_path = 'D:\\software\\Android\\sdk\\platform-tools\\adb'
+        adb_path = 'adb'
         def __init__(self):
             self.logger = logging.getLogger('ADBController')
             
@@ -31,8 +31,9 @@ class ArknightsAutoFighter:
             output, error = self.exec([self.adb_path, "start-server"])
             self.logger.debug(f"start server, result: {output}, stderr {error}")
             
-            # self.adb_prefix = '-s 127.0.0.1:7555'
-            self.adb_prefix = ["-s", "emulator-5564"] # prefix parameters
+            # self.adb_prefix = ["-s", "127.0.0.1:7555"]
+            # self.adb_prefix = ["-s", "emulator-5564"] # prefix parameters
+            self.adb_prefix = ''
             self.wait_for_device()
 
         def get_device_screen_picture(self):
@@ -375,10 +376,10 @@ class ArknightsAutoFighter:
 
 # 启动参数
 parser = argparse.ArgumentParser(description='Arkngihts auto fighter')
-parser.add_argument('-t', '--times',  help='战斗次数，0表示刷至体力耗尽，默认为0', type=int, default=0)
-parser.add_argument('-m', '--medicine',  help='允许使用体力药水来恢复体力，默认为否',
+parser.add_argument('-t', '--times',  help='script run times, set 0 to unlimited run util sanity runs out, default 0 / 战斗次数，0表示刷至体力耗尽，默认为0', type=int, default=0)
+parser.add_argument('-m', '--medicine',  help='allow using medicine to restore sanity, default false / 允许使用体力药水来恢复体力，默认为否',
                     default=True, action='store_true')
-parser.add_argument('-c', '--callback', help='程序完成后执行的回调命令')
+parser.add_argument('-c', '--callback', help='the callback command to run after script finished / 程序完成后执行的回调命令')
 args = parser.parse_args()
 
 
