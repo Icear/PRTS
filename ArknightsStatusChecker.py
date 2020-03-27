@@ -44,13 +44,7 @@ class ArknightsStatusChecker:
         
         # 配置 log
         self.logger = logging.getLogger('ArknightsStatusCheckHelper')
-        file_handler = logging.FileHandler(
-            os.path.join(os.getcwd(),'log','ArknightsStatusChecker.log'),mode='w'
-        ) # 加入额外 file handler 写入 DEBUG 级 log 到文件
-        file_handler.setFormatter(logging.Formatter(fmt=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
-                        datefmt='%m/ %d /%Y %I:%M:%S %p'))
-        file_handler.setLevel(logging.DEBUG)
-        self.logger.addHandler(file_handler)
+        
         #
         # 从template文件夹读取现有模板以及相关参数
         #

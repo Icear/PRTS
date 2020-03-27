@@ -350,6 +350,8 @@ class ArknightsAutoFighter:
         self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
 
 
+
+# 启动参数
 parser = argparse.ArgumentParser(description='Arkngihts auto fighter')
 parser.add_argument('-t', '--times',  help='战斗次数，0表示刷至体力耗尽，默认为0', type=int, default=0)
 parser.add_argument('-m', '--medicine',  help='允许使用体力药水来恢复体力，默认为否',
@@ -359,12 +361,18 @@ args = parser.parse_args()
 
 
 if __name__ == '__main__':
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+    # 写入 DEBUG 级 log 到文件
+    logging.basicConfig(level=logging.DEBUG,
                         format=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
-                        datefmt='%m/ %d /%Y %I:%M:%S %p')
-    logging.
-    # logging.basicConfig(format=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
-    #                     datefmt='%m/ %d /%Y %I:%M:%S %p')
+                        datefmt='%m/ %d /%Y %I:%M:%S %p',
+                        filename=os.path.join(os.getcwd(),'log','ArknightsStatusChecker.log')
+                        )
+    # 设置额外 handle 输出至 console，info 级别
+    consoleLog = logging.StreamHandler(stream=sys.stdout)
+    consoleLog.setLevel(logging.INFO)
+    formatter = logging.Formatter(fmt=' %(asctime)s %(levelname)s: %(module)s: %(message)s')
+    consoleLog.setFormatter(fmt=formatter)
+    logging.getLogger().addHandler(consoleLog)
 
     print(
         '''
@@ -376,6 +384,7 @@ if __name__ == '__main__':
                          |___/                                                |___/
        '''
     )
+
     if args.medicine:
         logging.warning("allow using medicine to recover mind")
     else:
