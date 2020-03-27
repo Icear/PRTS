@@ -147,12 +147,12 @@ class ArknightsAutoFighter:
         'leave_annihilation_settlement_y': 534,
         'leave_annihilation_settlement_y_prefix_start': 0,
         'leave_annihilation_settlement_y_prefix_end': 63,
-        'confirm_restore_mind_x': 1509,
-        'confirm_restore_mind_x_prefix_start': 0,
-        'confirm_restore_mind_x_prefix_end': 100,
-        'confirm_restore_mind_y': 745,
-        'confirm_restore_mind_y_prefix_start': 0,
-        'confirm_restore_mind_y_prefix_end': 60,
+        'confirm_restore_sanity_x': 1509,
+        'confirm_restore_sanity_x_prefix_start': 0,
+        'confirm_restore_sanity_x_prefix_end': 100,
+        'confirm_restore_sanity_y': 745,
+        'confirm_restore_sanity_y_prefix_start': 0,
+        'confirm_restore_sanity_y_prefix_end': 60,
         'screen_resolution': Screen(1920, 980),
     }
 
@@ -226,22 +226,22 @@ class ArknightsAutoFighter:
                 self._enter_team_up()
                 self._sleep(random.uniform(3, 5))  # 等待游戏响应
                 continue
-            if status == self.status_checker.ASC_STATUS_RESTORE_MIND_MEDICINE:
+            if status == self.status_checker.ASC_STATUS_RESTORE_SANITY_MEDICINE:
                 # 在体力不足界面
                 # 检查“允许使用体力药剂”标记，不允许则结束，允许则使用药剂
                 if self.allow_use_medicine:
                     self.logger.warning(
-                        'using medicine to restore mind as intend')
-                    self._confirm_mind_restore()  # 使用体力药剂
+                        'using medicine to restore sanity as intend')
+                    self._confirm_sanity_restore()  # 使用体力药剂
                     self._sleep(random.uniform(3, 4))  # 等待游戏响应
                     continue
                 self.logger.error(
-                    f"can't continue due to bad status: {self.status_checker.ASC_STATUS_RESTORE_MIND_MEDICINE}")
+                    f"can't continue due to bad status: {self.status_checker.ASC_STATUS_RESTORE_SANITY_MEDICINE}")
                 return False
-            if status == self.status_checker.ASC_STATUS_RESTORE_MIND_STONE:
+            if status == self.status_checker.ASC_STATUS_RESTORE_SANITY_STONE:
                 # 在体力不足界面
                 self.logger.error(
-                    f"can't continue due to bad status: {self.status_checker.ASC_STATUS_RESTORE_MIND_STONE}")
+                    f"can't continue due to bad status: {self.status_checker.ASC_STATUS_RESTORE_SANITY_STONE}")
                 return False
             if status == self.status_checker.ASC_STATUS_TEAM_UP:
                 # 在队伍选择界面
@@ -354,21 +354,21 @@ class ArknightsAutoFighter:
                                 self.adb_controller.get_device_screen_picture())
         self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
 
-    def _confirm_mind_restore(self):
+    def _confirm_sanity_restore(self):
         """
         确认使用恢复药剂
         """
-        point_x = self.device_config['confirm_restore_mind_x'] - random.uniform(
-            self.device_config['confirm_restore_mind_x_prefix_start'],
-            self.device_config['confirm_restore_mind_x_prefix_end'])
-        point_y = self.device_config['confirm_restore_mind_y'] + random.uniform(
-            self.device_config['confirm_restore_mind_y_prefix_start'],
-            self.device_config['confirm_restore_mind_y_prefix_end'])
+        point_x = self.device_config['confirm_restore_sanity_x'] - random.uniform(
+            self.device_config['confirm_restore_sanity_x_prefix_start'],
+            self.device_config['confirm_restore_sanity_x_prefix_end'])
+        point_y = self.device_config['confirm_restore_sanity_y'] + random.uniform(
+            self.device_config['confirm_restore_sanity_y_prefix_start'],
+            self.device_config['confirm_restore_sanity_y_prefix_end'])
         point_x, point_y = self._compute_new_point(
             point_x, point_y, self.device_config['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
         point_y = int(point_y)
-        self.picture_logger.log(point_x, point_y, f"confirm_restore_mind({point_x},{point_y})",
+        self.picture_logger.log(point_x, point_y, f"confirm_restore_sanity({point_x},{point_y})",
                                 self.adb_controller.get_device_screen_picture())
         self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
 
@@ -412,7 +412,7 @@ if __name__ == '__main__':
     )
 
     if args.medicine:
-        logging.warning("allow using medicine to restore mind")
+        logging.warning("allow using medicine to restore sanity")
     else:
         logging.warning("disable using medcine")
 
@@ -420,7 +420,7 @@ if __name__ == '__main__':
         logging.warning(f"fight times set to {args.times}")
     else:
         logging.warning(
-            "unset fight times, script will keep running util mind uses up")
+            "unset fight times, script will keep running util sanity uses up")
     
     if args.callback:
         logging.warning(f"recieve callback command:{args.callback}, recorded")

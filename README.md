@@ -11,8 +11,8 @@ The script takes screenshot via ADB command and compares it with preset template
 
 Here are the status that script could be able to distinguish:
 - level_selection
-    - restore_mind_medicine
-    - restore_mind_stone
+    - restore_sanity_medicine
+    - restore_sanity_stone
 - team_up
 - fighting
 - battle_settlement

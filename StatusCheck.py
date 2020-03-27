@@ -74,12 +74,12 @@ def test_battle_settlement(target_image):
     return result
 
 
-def test_restore_mind_medicine(target_image):
+def test_restore_sanity_medicine(target_image):
     #
     # 理智恢复-药剂模板
     #
     template_image = cv.imread(
-        os.path.join(os.getcwd(), 'template', 'restore_mind_medicine-1033-115-1273-171.png'), cv.IMREAD_GRAYSCALE)
+        os.path.join(os.getcwd(), 'template', 'restore_sanity_medicine-1033-115-1273-171.png'), cv.IMREAD_GRAYSCALE)
 
     cut_image = target_image[115:171, 1033:1273]
 
@@ -94,12 +94,12 @@ def test_restore_mind_medicine(target_image):
     return result
 
 
-def test_restore_mind_stone(target_image):
+def test_restore_sanity_stone(target_image):
     #
     # 理智恢复-药剂模板
     #
     template_image = cv.imread(
-        os.path.join(os.getcwd(), 'template', 'restore_mind_stone-1464-115-1748-168.png'), cv.IMREAD_GRAYSCALE)
+        os.path.join(os.getcwd(), 'template', 'restore_sanity_stone-1464-115-1748-168.png'), cv.IMREAD_GRAYSCALE)
 
     cut_image = target_image[115:168, 1464:1748]
 
@@ -185,8 +185,8 @@ if __name__ == '__main__':
         "level_selection": test_level_selection,
         "team_up": test_team_up,
         "battle_settlement": test_battle_settlement,
-        "restore_mind_medicine": test_restore_mind_medicine,
-        "restore_mind_stone": test_restore_mind_stone,
+        "restore_sanity_medicine": test_restore_sanity_medicine,
+        "restore_sanity_stone": test_restore_sanity_stone,
         "fighting": test_fighting,
         "annihilation_settlement": test_annihilation_settlement,
     }
@@ -195,8 +195,8 @@ if __name__ == '__main__':
         "team_up": "enter_game",
         "battle_settlement": "leave_settlement",
         "fighting": "fighting",
-        "restore_mind_medicine": "restore_mind_medicine",
-        "restore_mind_stone": "restore_mind_stone",
+        "restore_sanity_medicine": "restore_sanity_medicine",
+        "restore_sanity_stone": "restore_sanity_stone",
         "annihilation_settlement": "annihilation_settlement",
     }
 

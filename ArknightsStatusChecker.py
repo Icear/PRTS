@@ -8,8 +8,8 @@ import numpy as np
 # 目的是根据当前屏幕的截图分辨出当前正在进行的状态
 # 一共可能有的状态有：
 #   - 关卡选择界面 level_selection
-#       - 恢复体力界面-药剂恢复 restore_mind_medicine
-#       - 恢复体力界面-源石恢复 restore_mind_stone
+#       - 恢复体力界面-药剂恢复 restore_sanity_medicine
+#       - 恢复体力界面-源石恢复 restore_sanity_stone
 #   - 队伍选择界面 team_up
 #   - 战斗界面 fighting
 #   - 战斗结算界面 battle_settlement
@@ -21,8 +21,8 @@ import numpy as np
 class ArknightsStatusChecker:
     _template_path = os.path.join(os.getcwd(), 'template')
     ASC_STATUS_LEVEL_SELECTION = 'level_selection'
-    ASC_STATUS_RESTORE_MIND_MEDICINE = 'restore_mind_medicine'
-    ASC_STATUS_RESTORE_MIND_STONE = 'restore_mind_stone'
+    ASC_STATUS_RESTORE_SANITY_MEDICINE = 'restore_sanity_medicine'
+    ASC_STATUS_RESTORE_SANITY_STONE = 'restore_sanity_stone'
     ASC_STATUS_TEAM_UP = 'team_up'
     ASC_STATUS_FIGHTING = 'fighting'
     ASC_STATUS_BATTLE_SETTLEMENT = 'battle_settlement'
@@ -127,8 +127,8 @@ class ArknightsStatusChecker:
                 return False
         return True
 
-    def check_restore_mind_stone_status(self, target_image):
-        for template in self.templates[self.ASC_STATUS_RESTORE_MIND_STONE]:
+    def check_restore_sanity_stone_status(self, target_image):
+        for template in self.templates[self.ASC_STATUS_RESTORE_SANITY_STONE]:
             cut_image = target_image[
                         template.start_y:template.end_y,
                         template.start_x:template.end_x]
@@ -137,7 +137,7 @@ class ArknightsStatusChecker:
             difference = cv.absdiff(cut_image, template.template_data)
             result = not np.any(difference)
             self.logger.debug(
-                f"status check show {result} for {self.ASC_STATUS_RESTORE_MIND_STONE} template {template.to_string()} ")
+                f"status check show {result} for {self.ASC_STATUS_RESTORE_SANITY_STONE} template {template.to_string()} ")
             if not result:
                 return False
         return True
@@ -160,8 +160,8 @@ class ArknightsStatusChecker:
                 return False
         return True
 
-    def check_restore_mind_medicine_status(self, target_image):
-        for template in self.templates[self.ASC_STATUS_RESTORE_MIND_MEDICINE]:
+    def check_restore_sanity_medicine_status(self, target_image):
+        for template in self.templates[self.ASC_STATUS_RESTORE_SANITY_MEDICINE]:
             cut_image = target_image[
                         template.start_y:template.end_y,
                         template.start_x:template.end_x]
@@ -171,7 +171,7 @@ class ArknightsStatusChecker:
             mean, std_dev = cv.meanStdDev(difference)
             result = mean[0][0] < 2
             self.logger.debug(
-                f"status check show {result} for {self.ASC_STATUS_RESTORE_MIND_MEDICINE}"
+                f"status check show {result} for {self.ASC_STATUS_RESTORE_SANITY_MEDICINE}"
                 f" template {template.to_string()} ")
             if not result:
                 return False
