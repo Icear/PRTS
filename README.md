@@ -1,6 +1,6 @@
 # Arkngihts Auto Fight Script
 
-This is a script helping you do something repetitive such as 1-7 loop.
+This is a script to do some repetitive work such as 1-7.
 
 Warning: This script is made only for personal interest to verify what I have learnd. Using this script may lead to account ban. **Use this script at your own risk**
 
