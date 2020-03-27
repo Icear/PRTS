@@ -33,7 +33,7 @@ class ArknightsAutoFighter:
             
             # self.adb_prefix = ["-s", "127.0.0.1:7555"]
             # self.adb_prefix = ["-s", "emulator-5564"] # prefix parameters
-            self.adb_prefix = ''
+            self.adb_prefix = []
             self.wait_for_device()
 
         def get_device_screen_picture(self):
