@@ -21,45 +21,55 @@ class ArknightsAutoFighter:
                 self.length, self.width = self.width, self.length
 
     class ADBController:
-        adb_path = 'adb'
-        adb_prefix = ''  # prefix parameters
-
+        adb_path = 'D:\\software\\Android\\sdk\\platform-tools\\adb'
         def __init__(self):
             self.logger = logging.getLogger('ADBController')
-            os.system(f"{self.adb_path} kill-server")
-            # os.system(f"{self.adb_path} connect 127.0.0.1:7555")
+            
+            # self.logger.info(f"resetting ADB server...")
+            # output, error = self.exec([self.adb_path, "kill-server"])
+            # self.logger.debug(f"kill server, result: {output}, stderr: {error}")
+            # output, error = self.exec([self.adb_path, "start-server"])
+            # self.logger.debug(f"start server, result: {output}, stderr {error}")
+            
             # self.adb_prefix = '-s 127.0.0.1:7555'
-            self.adb_prefix = '-s emulator-5564'
+            self.adb_prefix = ["-s", "emulator-5564"] # prefix parameters
             self.wait_for_device()
 
         def get_device_screen_picture(self):
-            with subprocess.Popen(f"{self.adb_path} {self.adb_prefix} exec-out screencap -p", shell=True,
-                                  stdout=subprocess.PIPE) as pip:
-                data = pip.stdout.read()
-            return data
+            output, error = self.exec([self.adb_path] + self.adb_prefix + ["exec-out", "screencap", "-p"])
+            self.logger.debug(f"get screen pic, stderr: {error}")
+            return output
 
         def get_device_resolution(self):
-            self.logger.info('getting device screen resolution')
-            with os.popen(f"{self.adb_path} {self.adb_prefix} shell wm size") as reply:
-                pattern = re.compile(r'.*? (\d*?)x(\d*?)$')
-                match_result = pattern.match(reply.readline())
-                screen_resolution = ArknightsAutoFighter.Screen(
-                    match_result[1], match_result[2])
+            self.logger.info('getting device screen resolution...')
+            pattern = re.compile(r'.*? (\d*?)x(\d*?)\r\n$')
+            output, error = self.exec([self.adb_path] + self.adb_prefix + ["shell", "wm", "size"])
+            result = bytes.decode(output)
+            self.logger.debug(f"check resolution, result: {result}, stderr: {error}")
+            match_result = pattern.match(result)
+            screen_resolution = ArknightsAutoFighter.Screen(
+                match_result[1], match_result[2])
             self.logger.info(
                 f"screen size is {screen_resolution.length}x{screen_resolution.width}")
             return screen_resolution
 
         def wait_for_device(self):
             self.logger.info('waiting for device...')
-            os.system(f"{self.adb_path} wait-for-device")
+            output, error = self.exec([self.adb_path] + self.adb_prefix + ["wait-for-device"])
+            self.logger.debug(f"waiting for device result: {output}, stderr: {error} ")
             self.logger.info('device connected')
 
         def click(self, x, y):
             x = round(x, 0)
             y = round(y, 0)
             self.logger.info(f"tap({x}, {y})")
-            os.system(
-                f"{self.adb_path} {self.adb_prefix} shell input tap {x} {y}")
+            output, error = self.exec([self.adb_path] + self.adb_prefix + ["shell", "input", "tap", str(x), str(y)])
+            self.logger.debug(f"click result: {output}")
+        
+        def exec(self, command):
+            with subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as pipe:
+                stdout, stderr = pipe.communicate()
+            return stdout, stderr
 
     class PictureLogger:
         log_delete_last = True
@@ -355,7 +365,7 @@ class ArknightsAutoFighter:
 parser = argparse.ArgumentParser(description='Arkngihts auto fighter')
 parser.add_argument('-t', '--times',  help='战斗次数，0表示刷至体力耗尽，默认为0', type=int, default=0)
 parser.add_argument('-m', '--medicine',  help='允许使用体力药水来恢复体力，默认为否',
-                    default=False, action='store_true')
+                    default=True, action='store_true')
 parser.add_argument('-c', '--callback', help='程序完成后执行的回调命令')
 args = parser.parse_args()
 
@@ -407,5 +417,5 @@ if __name__ == '__main__':
     if args.callback:
         logging.warning("executing callback command...")
         logging.warning(args.callback)
-        os.system(args.callback)
-        logging.warning("done")
+        output = os.system(args.callback + " 2&>1 ")
+        logging.warning(f"done, reuslt: {output}")
