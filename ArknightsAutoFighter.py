@@ -147,6 +147,12 @@ class ArknightsAutoFighter:
         'leave_annihilation_settlement_y': 534,
         'leave_annihilation_settlement_y_prefix_start': 0,
         'leave_annihilation_settlement_y_prefix_end': 63,
+        'leave_level_up_x': 1615,
+        'leave_level_up_x_prefix_start': 0,
+        'leave_level_up_x_prefix_end': 148,
+        'leave_level_up_y': 534,
+        'leave_level_up_y_prefix_start': 0,
+        'leave_level_up_y_prefix_end': 63,
         'confirm_restore_sanity_x': 1509,
         'confirm_restore_sanity_x_prefix_start': 0,
         'confirm_restore_sanity_x_prefix_end': 100,
@@ -268,6 +274,12 @@ class ArknightsAutoFighter:
                 # 一轮执行结束
                 fight_finished = True
                 continue
+            if status == self.status_checker.ASC_STATUS_LEVEL_UP:
+                # 升级界面
+                # 尝试离开升级界面
+                self._leave_level_up_settlement() 
+                self._sleep(random.uniform(3,5))  # 等待游戏响应
+                continue 
             if status == self.status_checker.ASC_STATUS_UNKNOWN:
                 # 未知状态，等待二十秒后再次检查
                 self.picture_logger.log(1, 1, "unrecognized status for ArkngithsStatusChecker",
@@ -313,9 +325,27 @@ class ArknightsAutoFighter:
             point_x, point_y, self.device_config['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
         point_y = int(point_y)
-        self.picture_logger.log(point_x, point_y, f"exit proxy fight result interface({point_x},{point_y})",
+        self.picture_logger.log(point_x, point_y, f"exit_proxy_fight_result_interface({point_x},{point_y})",
                                 self.adb_controller.get_device_screen_picture())
-        self.adb_controller.click(point_x, point_y)  # 剿灭系列结算需要多点击一次
+        self.adb_controller.click(point_x, point_y)
+
+     def _leave_level_up_settlement(self):
+        """
+        离开升级页面
+        """
+        point_x = self.device_config['leave_level_up_x'] - random.uniform(
+            self.device_config['leave_level_up_x_prefix_start'],
+            self.device_config['leave_level_up_x_prefix_end'])
+        point_y = self.device_config['leave_level_up_y'] + random.uniform(
+            self.device_config['leave_level_up_y_prefix_start'],
+            self.device_config['leave_level_up_y_prefix_end'])
+        point_x, point_y = self._compute_new_point(
+            point_x, point_y, self.device_config['screen_resolution'], self.target_resolution)
+        point_x = int(point_x)
+        point_y = int(point_y)
+        self.picture_logger.log(point_x, point_y, f"exit_level_up_interface({point_x},{point_y})",
+                                self.adb_controller.get_device_screen_picture())
+        self.adb_controller.click(point_x, point_y)
 
     def _enter_game(self):
         """
