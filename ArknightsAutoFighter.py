@@ -329,7 +329,7 @@ class ArknightsAutoFighter:
                                 self.adb_controller.get_device_screen_picture())
         self.adb_controller.click(point_x, point_y)
 
-     def _leave_level_up_settlement(self):
+    def _leave_level_up_settlement(self):
         """
         离开升级页面
         """
