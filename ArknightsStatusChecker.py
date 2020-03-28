@@ -14,6 +14,7 @@ import numpy as np
 #   - 战斗界面 fighting
 #   - 战斗结算界面 battle_settlement
 #       - 剿灭结果汇报界面 annihilation_settlement
+#       - 等级提升界面 level_up
 # 截取每个界面的特征图片，初步实现是在1920，960分辨率下在同位置图片然后比对截取的图片是否相同；
 # 之后的想法是用相同的模板图片来寻找截图中对应的位置，如果存在则有
 
@@ -27,6 +28,7 @@ class ArknightsStatusChecker:
     ASC_STATUS_FIGHTING = 'fighting'
     ASC_STATUS_BATTLE_SETTLEMENT = 'battle_settlement'
     ASC_STATUS_ANNIHILATION_SETTLEMENT = 'annihilation_settlement'
+    ASC_STATUS_LEVEL_UP = 'level_up'
     ASC_STATUS_UNKNOWN = 'unknown'
 
     class TemplateData:
@@ -225,6 +227,27 @@ class ArknightsStatusChecker:
             result = mean[0][0] < 5
             self.logger.debug(
                 f"status check show {result} for {self.ASC_STATUS_BATTLE_SETTLEMENT} template {template.to_string()} ")
+            if not result:
+                return False
+        return True
+
+    def check_level_up_status(self, target_image):
+        for template in self.templates[self.ASC_STATUS_LEVEL_UP]:
+            cut_image = target_image[
+                        template.start_y:template.end_y,
+                        template.start_x:template.end_x]
+            # Otsu 阈值
+            _, cut_image_new = cv.threshold(cut_image, 170, 255,
+                                            cv.THRESH_BINARY + cv.THRESH_OTSU)
+            _, template_image_new = cv.threshold(template.template_data, 170, 255,
+                                                    cv.THRESH_BINARY + cv.THRESH_OTSU)
+
+            difference = cv.absdiff(cut_image_new, template_image_new)
+            mean, _ = cv.meanStdDev(difference)
+            result = mean[0][0] < 2
+            self.logger.debug(f"level_up checker get mean of difference: {mean}")
+            self.logger.debug(
+                f"status check show {result} for {self.ASC_STATUS_FIGHTING} template {template.to_string()} ")
             if not result:
                 return False
         return True

@@ -17,6 +17,7 @@ Here are the status that script could be able to distinguish:
 - fighting
 - battle_settlement
     - annihilation_settlement
+    - level_up
 
 Now the function has to work with proper template set up in single resolution, I'll try to overcome the resolution limit in the future. (It's still a huge mess inside the code XD)
 
@@ -58,8 +59,8 @@ If you need the script to work on other resolution or other language server, you
 - change the target template name you want to generate at the end line of 'GenerateTemplate.py'
 - execute it
 - it will automatically take an screenshot from your device and show up
-- find the template location, click the top left corner then click the bottom right corner and close the window
-- cutted template should show up in a new poped window and automatically save around the script
+- find the template location, click the top left corner then click the bottom right corner and press any key
+- cutted template should show up in a new poped window, press any key again and script will automatically save the cutted template around the script location
 - move it to the template folder 
 - you are good to go
   
