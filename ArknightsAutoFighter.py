@@ -46,12 +46,12 @@ class ArknightsAutoFighter:
 
         def get_device_resolution(self):
             self.logger.info('getting device screen resolution...')
-            pattern = re.compile(r'.*? (\d*?)x(\d*?)\r\n$')
+            pattern = re.compile(r'.*? (\d*?)x(\d*?)$')
             output, error = self.exec([self.adb_path] + self.adb_prefix + ["shell", "wm", "size"])
             if error != '':
                 self.logger.error(f"command get_device_resolution error: {error}")
                 exit(-1)
-            result = bytes.decode(output)
+            result = bytes.decode(output).strip()
             self.logger.debug(f"check resolution, result: {result}, stderr: {error}")
             match_result = pattern.match(result)
             screen_resolution = ArknightsAutoFighter.Screen(
@@ -191,8 +191,11 @@ class ArknightsAutoFighter:
 
     @staticmethod
     def _sleep(fake_time):
+        logging.debug(f"schedule sleep for {fake_time} seconds")
+        logging.debug(f"start sleep: {time.ctime()}")
         # a = 1
         time.sleep(fake_time)
+        logging.debug(f"end sleep: {time.ctime()}")
 
     def auto_fight(self):
         # 循环调用auto_fight_once 来进行战斗
