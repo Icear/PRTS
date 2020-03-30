@@ -30,7 +30,10 @@ class ArknightsAutoFighter:
             self.logger.debug(f"kill server, result: {output}, stderr: {error}")
             output, error = self.exec([self.adb_path, "start-server"])
             self.logger.debug(f"start server, result: {output}, stderr {error}")
+            output, error = self.exec([self.adb_path, "connect", "127.0.0.1:62001"])
+            self.logger.debug(f"connect to device, result: {output}, stderr {error}")
             
+
             # self.adb_prefix = ["-s", "127.0.0.1:7555"]
             # self.adb_prefix = ["-s", "emulator-5564"] # prefix parameters
             self.adb_prefix = []
@@ -463,5 +466,5 @@ if __name__ == '__main__':
     if args.callback:
         logging.warning("executing callback command...")
         logging.warning(args.callback)
-        output = os.system(args.callback + " 2&>1 ")
+        output = os.system(args.callback)
         logging.warning(f"done, reuslt: {output}")
