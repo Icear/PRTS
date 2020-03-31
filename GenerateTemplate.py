@@ -34,7 +34,7 @@ def cut_template(target_status):
                 end_x = x
                 end_y = y
 
-    cv.namedWindow('image_original', cv.WINDOW_NORMAL)
+    cv.namedWindow('image_original', cv.WINDOW_NORMAL | cv.WINDOW_KEEPRATIO)
     cv.setMouseCallback('image_original', cut)
     cv.imshow('image_original', image)
     cv.waitKey(0)
@@ -43,6 +43,7 @@ def cut_template(target_status):
     print(end_x)
     print(end_y)
     newimg = image[start_y:end_y, start_x:end_x]
+    cv.namedWindow('image', cv.WINDOW_NORMAL | cv.WINDOW_KEEPRATIO)
     cv.imshow('image', newimg)
     cv.waitKey(0)
     cv.imwrite(os.path.join(os.getcwd(), f"{target_status}-{start_x}-{start_y}-{end_x}-{end_y}.png"), newimg)
