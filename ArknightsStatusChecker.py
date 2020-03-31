@@ -150,9 +150,14 @@ class ArknightsStatusChecker:
                         template.start_y:template.end_y,
                         template.start_x:template.end_x]
 
-            # 全局阈值
-            difference = cv.absdiff(cut_image, template.template_data)
-            mean, std_dev = cv.meanStdDev(difference)
+            # Otsu 阈值
+            _, cut_image_new = cv.threshold(cut_image, 170, 255,
+                                            cv.THRESH_BINARY + cv.THRESH_OTSU)
+            _, template_image_new = cv.threshold(template.template_data, 170, 255,
+                                                    cv.THRESH_BINARY + cv.THRESH_OTSU)
+
+            difference = cv.absdiff(cut_image_new, template_image_new)
+            mean, _ = cv.meanStdDev(difference)
             result = mean[0][0] < 2
             self.logger.debug(f"annihilation settlement checker get mean of difference: {mean}")
             self.logger.debug(
@@ -170,7 +175,7 @@ class ArknightsStatusChecker:
 
             # 全局阈值
             difference = cv.absdiff(cut_image, template.template_data)
-            mean, std_dev = cv.meanStdDev(difference)
+            mean, _ = cv.meanStdDev(difference)
             result = mean[0][0] < 2
             self.logger.debug(
                 f"status check show {result} for {self.ASC_STATUS_RESTORE_SANITY_MEDICINE}"

@@ -2,9 +2,26 @@ import cv2 as cv
 import os
 import numpy as np
 from ArknightsStatusChecker import ArknightsStatusChecker
+import logging
+import sys
 
 
 if __name__ == '__main__':
+    # 清理 log
+    if(os.path.exists(os.path.join(os.getcwd(),'log','TestStatusChecker.log'))):
+        os.remove(os.path.join(os.getcwd(),'log','TestStatusChecker.log'))
+    # 设置写入 DEBUG 级 log 到文件
+    logging.basicConfig(level=logging.DEBUG,
+                        format=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
+                        datefmt='%Y/%m/%d %I:%M:%S %p',
+                        filename=os.path.join(os.getcwd(),'log','TestStatusChecker.log')
+                        )
+    # 设置额外 handle 输出至 console，info 级别
+    consoleLog = logging.StreamHandler(stream=sys.stdout)
+    consoleLog.setLevel(logging.INFO)
+    formatter = logging.Formatter(fmt=' %(asctime)s %(levelname)s: %(module)s: %(message)s', datefmt='%Y/%m/%d %I:%M:%S %p')
+    consoleLog.setFormatter(fmt=formatter)
+    logging.getLogger().addHandler(consoleLog)
 
     # 把test_case下的所有图片读出来，丢给目标函数检查，输出每一次的检查结果和被检查的文件名
 
@@ -23,7 +40,7 @@ if __name__ == '__main__':
     success_count = 0
     fail_count = 0
 
-    test_target = status_checker.ASC_STATUS_LEVEL_UP
+    test_target = status_checker.ASC_STATUS_ANNIHILATION_SETTLEMENT
     test_active_only = False
 
     test_string = {
