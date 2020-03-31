@@ -125,9 +125,9 @@ class ArknightsStatusChecker:
             self.logger.debug(f"fighting checker get mean of difference: {mean}")
             self.logger.debug(
                 f"status check show {result} for {self.ASC_STATUS_FIGHTING} template {template.to_string()} ")
-            if not result:
-                return False
-        return True
+            if result:
+                return True
+        return False
 
     def check_restore_sanity_stone_status(self, target_image):
         for template in self.templates[self.ASC_STATUS_RESTORE_SANITY_STONE]:
@@ -140,9 +140,9 @@ class ArknightsStatusChecker:
             result = not np.any(difference)
             self.logger.debug(
                 f"status check show {result} for {self.ASC_STATUS_RESTORE_SANITY_STONE} template {template.to_string()} ")
-            if not result:
-                return False
-        return True
+            if result:
+                return True
+        return False
 
     def check_annihilation_settlement_status(self, target_image):
         for template in self.templates[self.ASC_STATUS_ANNIHILATION_SETTLEMENT]:
@@ -163,9 +163,9 @@ class ArknightsStatusChecker:
             self.logger.debug(
                 f"status check show {result} for {self.ASC_STATUS_ANNIHILATION_SETTLEMENT} "
                 f"template {template.to_string()} ")
-            if not result:
-                return False
-        return True
+            if result:
+                return True
+        return False
 
     def check_restore_sanity_medicine_status(self, target_image):
         for template in self.templates[self.ASC_STATUS_RESTORE_SANITY_MEDICINE]:
@@ -180,9 +180,9 @@ class ArknightsStatusChecker:
             self.logger.debug(
                 f"status check show {result} for {self.ASC_STATUS_RESTORE_SANITY_MEDICINE}"
                 f" template {template.to_string()} ")
-            if not result:
-                return False
-        return True
+            if result:
+                return True
+        return False
 
     def check_level_selection_status(self, target_image):
         for template in self.templates[self.ASC_STATUS_LEVEL_SELECTION]:
@@ -195,9 +195,9 @@ class ArknightsStatusChecker:
             result = not np.any(difference)
             self.logger.debug(
                 f"status check show {result} for {self.ASC_STATUS_LEVEL_SELECTION} template {template.to_string()} ")
-            if not result:
-                return False
-        return True
+            if result:
+                return True
+        return False
 
     def check_team_up_status(self, target_image):
         for template in self.templates[self.ASC_STATUS_TEAM_UP]:
@@ -210,9 +210,9 @@ class ArknightsStatusChecker:
             result = not np.any(difference)
             self.logger.debug(
                 f"status check show {result} for {self.ASC_STATUS_TEAM_UP} template {template.to_string()} ")
-            if not result:
-                return False
-        return True
+            if result:
+                return True
+        return False
 
     def check_battle_settlement_status(self, target_image):
         for template in self.templates[self.ASC_STATUS_BATTLE_SETTLEMENT]:
@@ -232,9 +232,9 @@ class ArknightsStatusChecker:
             result = mean[0][0] < 5
             self.logger.debug(
                 f"status check show {result} for {self.ASC_STATUS_BATTLE_SETTLEMENT} template {template.to_string()} ")
-            if not result:
-                return False
-        return True
+            if result:
+                return True
+        return False
 
     def check_level_up_status(self, target_image):
         for template in self.templates[self.ASC_STATUS_LEVEL_UP]:
@@ -253,6 +253,6 @@ class ArknightsStatusChecker:
             self.logger.debug(f"level_up checker get mean of difference: {mean}")
             self.logger.debug(
                 f"status check show {result} for {self.ASC_STATUS_FIGHTING} template {template.to_string()} ")
-            if not result:
-                return False
-        return True
+            if result:
+                return True
+        return False
