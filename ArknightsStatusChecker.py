@@ -177,6 +177,7 @@ class ArknightsStatusChecker:
             difference = cv.absdiff(cut_image, template.template_data)
             mean, _ = cv.meanStdDev(difference)
             result = mean[0][0] < 2
+            self.logger.debug(f"restore sanity medicine status checker get mean of difference: {mean}")
             self.logger.debug(
                 f"status check show {result} for {self.ASC_STATUS_RESTORE_SANITY_MEDICINE}"
                 f" template {template.to_string()} ")
@@ -230,6 +231,7 @@ class ArknightsStatusChecker:
             difference = cv.absdiff(cut_image_new, template_image_new)
             mean, _ = cv.meanStdDev(difference)
             result = mean[0][0] < 5
+            self.logger.debug(f"battle settlement checker get mean of difference: {mean}")
             self.logger.debug(
                 f"status check show {result} for {self.ASC_STATUS_BATTLE_SETTLEMENT} template {template.to_string()} ")
             if result:
