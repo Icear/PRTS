@@ -259,12 +259,12 @@ class ArknightsAutoFighter:
                 # 在队伍选择界面
                 # 尝试进入战斗界面
                 self._enter_game()
-                self._sleep(random.uniform(10, 20))  # 等待游戏响应
+                self._sleep(random.uniform(10, 15))  # 等待游戏响应
                 continue
             if status == self.status_checker.ASC_STATUS_FIGHTING:
                 # 在战斗界面
                 # 等待5秒后重新检查
-                self._sleep(10)
+                self._sleep(15)
                 continue
             if status == self.status_checker.ASC_STATUS_ANNIHILATION_SETTLEMENT:
                 # 在剿灭结算界面
@@ -295,7 +295,7 @@ class ArknightsAutoFighter:
                     self.logger.error(
                         f"error, unrecognized status, check out log for screen shot")
                     return False
-                self._sleep(20)
+                self._sleep(10)
                 continue
 
     def _leave_settlement(self):
