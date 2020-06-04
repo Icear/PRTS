@@ -53,7 +53,7 @@ script will keep waiting for device util you connect a device to ADB
 
 ### Set up template
 
-The script comes with preset template working on 1920x980 resolution on Chinese server
+The script comes with preset template working on 1920x980 and 1600x900(not full support) resolution on Chinese server
 
 If you need the script to work on other resolution or other language server, you can use 'GenerateTemplate.py' script to generate new template for your resolution
 - change the target template name you want to generate at the end line of 'GenerateTemplate.py'
