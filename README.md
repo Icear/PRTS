@@ -60,13 +60,13 @@ If you need the script to work on other resolution or other language server, you
 - execute it
 - it will automatically take an screenshot from your device and show up
 - find the template location, click the top left corner then click the bottom right corner and press any key
-- cutted template should show up in a new poped window, press any key again and script will automatically save the cutted template around the script location
-- move it to the template folder 
+- the cut template should show up in a new pop window, press any key again and script will automatically save the cut template to template folder
+- ~~move it to the template folder~~
 - you are good to go
   
 ## Usage
 
-Choose the target level you want to run, make sure the autodeploy box checked, then run the script.
+Choose the target level you want to run, make sure the auto deploy box checked, then run the script.
 (the script is able to catch up in the middle of gaming, so you can actually run the script at any moment during the game)
 
 To run script with limited times, for example 3 times.

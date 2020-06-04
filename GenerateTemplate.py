@@ -48,9 +48,10 @@ def cut_template(target_status):
     cv.namedWindow('image', cv.WINDOW_NORMAL | cv.WINDOW_KEEPRATIO)
     cv.imshow('image', new_image)
     cv.waitKey(0)
-    cv.imwrite(os.path.join(os.getcwd(), f"{target_status}-{start_x}-{start_y}-{end_x}-{end_y}.png"), new_image)
+    cv.imwrite(os.path.join(os.getcwd(), "template", f"{target_status}-{start_x}-{start_y}-{end_x}-{end_y}.png"),
+               new_image)
     cv.destroyAllWindows()
 
 
 if __name__ == '__main__':
-    cut_template(TraditionalStatusChecker.ASC_STATUS_RESTORE_SANITY_STONE)
+    cut_template(TraditionalStatusChecker.ASC_STATUS_LEVEL_SELECTION)
