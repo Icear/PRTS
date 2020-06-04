@@ -44,10 +44,10 @@ class TraditionalStatusChecker:
             return f"start_x: {self.start_x}, start_y: {self.start_y}, end_x: {self.end_x}, end_y: {self.end_y}"
 
     def __init__(self):
-        
+
         # 配置 log
         self.logger = logging.getLogger('ArknightsStatusCheckHelper')
-        
+
         #
         # 从template文件夹读取现有模板以及相关参数
         #
@@ -98,19 +98,34 @@ class TraditionalStatusChecker:
             screen_shot, dtype="int8"), cv.IMREAD_GRAYSCALE)
         # 将图片传入每一个状态的匹配函数进行检查，获得匹配结果时返回该状态
         for status in self._status:
-            # 检查对应状态方法是否存在
-            if hasattr(self, f"check_{status}_status"):
-                detector = getattr(self, f"check_{status}_status", lambda x: False)
-                if detector(image):
-                    self.logger.info(f"checked status: {status}")
-                    return status  # 匹配成功
-            else:
-                self.logger.warning(f"Status checker for status {status} not found! This status can not be detected.")
+            if self._check_template(image, status):
+                self.logger.info(f"checked status: {status}")
+                return status
+            # # 检查对应状态方法是否存在
+            # if hasattr(self, f"check_{status}_status"):
+            #     detector = getattr(self, f"check_{status}_status", lambda x: False)
+            #     if detector(image):
+            #         self.logger.info(f"checked status: {status}")
+            #         return status  # 匹配成功
+            # else:
+            #     self.logger.warning(f"Status checker for status {status} not found! This status can not be detected.")
         self.logger.info(f"checked status: {self.ASC_STATUS_UNKNOWN}")
         return self.ASC_STATUS_UNKNOWN
 
-    def check_fighting_status(self, target_image):
-        for template in self.templates[self.ASC_STATUS_FIGHTING]:
+    def _check_template(self, target_image, target):
+        """
+        check if template match the target image
+        :param target_image: target image
+        :param target: target status wanted
+        :return: if template match the target image
+        """
+        for template in self.templates[target]:
+            # check if templates is oversize
+            target_image_shape = target_image.shape
+            if target_image_shape[0] < template.end_y or target_image_shape[1] < template.end_x:
+                # oversize template, skip
+                self.logger.debug(f"skipped template check due to oversize template shape: {template.to_string()}")
+                continue
             cut_image = target_image[
                         template.start_y:template.end_y,
                         template.start_x:template.end_x]
@@ -123,142 +138,163 @@ class TraditionalStatusChecker:
             difference = cv.absdiff(cut_image_new, template_image_new)
             mean, _ = cv.meanStdDev(difference)
             result = mean[0][0] < 2
-            self.logger.debug(f"fighting checker get mean of difference: {mean}")
+            self.logger.debug(f"{target} get mean of difference: {mean}")
             self.logger.debug(
-                f"status check show {result} for {self.ASC_STATUS_FIGHTING} template {template.to_string()} ")
+                f"status check show {result} for {target} template {template.to_string()} ")
             if result:
                 return True
         return False
 
-    def check_restore_sanity_stone_status(self, target_image):
-        for template in self.templates[self.ASC_STATUS_RESTORE_SANITY_STONE]:
-            cut_image = target_image[
-                        template.start_y:template.end_y,
-                        template.start_x:template.end_x]
-
-            # 全局阈值
-            difference = cv.absdiff(cut_image, template.template_data)
-            result = not np.any(difference)
-            self.logger.debug(
-                f"status check show {result} for {self.ASC_STATUS_RESTORE_SANITY_STONE} template {template.to_string()} ")
-            if result:
-                return True
-        return False
-
-    def check_annihilation_settlement_status(self, target_image):
-        for template in self.templates[self.ASC_STATUS_ANNIHILATION_SETTLEMENT]:
-            cut_image = target_image[
-                        template.start_y:template.end_y,
-                        template.start_x:template.end_x]
-
-            # Otsu 阈值
-            _, cut_image_new = cv.threshold(cut_image, 170, 255,
-                                            cv.THRESH_BINARY + cv.THRESH_OTSU)
-            _, template_image_new = cv.threshold(template.template_data, 170, 255,
-                                                    cv.THRESH_BINARY + cv.THRESH_OTSU)
-
-            difference = cv.absdiff(cut_image_new, template_image_new)
-            mean, _ = cv.meanStdDev(difference)
-            result = mean[0][0] < 2
-            self.logger.debug(f"annihilation settlement checker get mean of difference: {mean}")
-            self.logger.debug(
-                f"status check show {result} for {self.ASC_STATUS_ANNIHILATION_SETTLEMENT} "
-                f"template {template.to_string()} ")
-            if result:
-                return True
-        return False
-
-    def check_restore_sanity_medicine_status(self, target_image):
-        for template in self.templates[self.ASC_STATUS_RESTORE_SANITY_MEDICINE]:
-            cut_image = target_image[
-                        template.start_y:template.end_y,
-                        template.start_x:template.end_x]
-
-            # 全局阈值
-            difference = cv.absdiff(cut_image, template.template_data)
-            mean, _ = cv.meanStdDev(difference)
-            result = mean[0][0] < 2
-            self.logger.debug(f"restore sanity medicine status checker get mean of difference: {mean}")
-            self.logger.debug(
-                f"status check show {result} for {self.ASC_STATUS_RESTORE_SANITY_MEDICINE}"
-                f" template {template.to_string()} ")
-            if result:
-                return True
-        return False
-
-    def check_level_selection_status(self, target_image):
-        for template in self.templates[self.ASC_STATUS_LEVEL_SELECTION]:
-            cut_image = target_image[
-                        template.start_y:template.end_y,
-                        template.start_x:template.end_x]
-
-            # 全局阈值
-            difference = cv.absdiff(cut_image, template.template_data)
-            mean, _ = cv.meanStdDev(difference)
-            result = mean[0][0] < 2
-            self.logger.debug(f"level selection status checker get mean of difference: {mean}")
-            self.logger.debug(
-                f"status check show {result} for {self.ASC_STATUS_LEVEL_SELECTION}"
-                f" template {template.to_string()} ")
-            if result:
-                return True
-        return False
-
-    def check_team_up_status(self, target_image):
-        for template in self.templates[self.ASC_STATUS_TEAM_UP]:
-            cut_image = target_image[
-                        template.start_y:template.end_y,
-                        template.start_x:template.end_x]
-
-            # 全局阈值
-            difference = cv.absdiff(cut_image, template.template_data)
-            result = not np.any(difference)
-            self.logger.debug(
-                f"status check show {result} for {self.ASC_STATUS_TEAM_UP} template {template.to_string()} ")
-            if result:
-                return True
-        return False
-
-    def check_battle_settlement_status(self, target_image):
-        for template in self.templates[self.ASC_STATUS_BATTLE_SETTLEMENT]:
-            # 目标图片切割
-            cut_image = target_image[
-                        template.start_y:template.end_y,
-                        template.start_x:template.end_x]
-
-            # Otsu 阈值
-            _, cut_image_new = cv.threshold(cut_image, 170, 255,
-                                            cv.THRESH_BINARY + cv.THRESH_OTSU)
-            _, template_image_new = cv.threshold(template.template_data, 170, 255,
-                                                 cv.THRESH_BINARY + cv.THRESH_OTSU)
-
-            difference = cv.absdiff(cut_image_new, template_image_new)
-            mean, _ = cv.meanStdDev(difference)
-            result = mean[0][0] < 5
-            self.logger.debug(f"battle settlement checker get mean of difference: {mean}")
-            self.logger.debug(
-                f"status check show {result} for {self.ASC_STATUS_BATTLE_SETTLEMENT} template {template.to_string()} ")
-            if result:
-                return True
-        return False
-
-    def check_level_up_status(self, target_image):
-        for template in self.templates[self.ASC_STATUS_LEVEL_UP]:
-            cut_image = target_image[
-                        template.start_y:template.end_y,
-                        template.start_x:template.end_x]
-            # Otsu 阈值
-            _, cut_image_new = cv.threshold(cut_image, 170, 255,
-                                            cv.THRESH_BINARY + cv.THRESH_OTSU)
-            _, template_image_new = cv.threshold(template.template_data, 170, 255,
-                                                    cv.THRESH_BINARY + cv.THRESH_OTSU)
-
-            difference = cv.absdiff(cut_image_new, template_image_new)
-            mean, _ = cv.meanStdDev(difference)
-            result = mean[0][0] < 2
-            self.logger.debug(f"level_up checker get mean of difference: {mean}")
-            self.logger.debug(
-                f"status check show {result} for {self.ASC_STATUS_FIGHTING} template {template.to_string()} ")
-            if result:
-                return True
-        return False
+    # def check_fighting_status(self, target_image):
+    #     for template in self.templates[self.ASC_STATUS_FIGHTING]:
+    #         cut_image = target_image[
+    #                     template.start_y:template.end_y,
+    #                     template.start_x:template.end_x]
+    #         # Otsu 阈值
+    #         _, cut_image_new = cv.threshold(cut_image, 170, 255,
+    #                                         cv.THRESH_BINARY + cv.THRESH_OTSU)
+    #         _, template_image_new = cv.threshold(template.template_data, 170, 255,
+    #                                              cv.THRESH_BINARY + cv.THRESH_OTSU)
+    #
+    #         difference = cv.absdiff(cut_image_new, template_image_new)
+    #         mean, _ = cv.meanStdDev(difference)
+    #         result = mean[0][0] < 2
+    #         self.logger.debug(f"fighting checker get mean of difference: {mean}")
+    #         self.logger.debug(
+    #             f"status check show {result} for {self.ASC_STATUS_FIGHTING} template {template.to_string()} ")
+    #         if result:
+    #             return True
+    #     return False
+    #
+    # def check_restore_sanity_stone_status(self, target_image):
+    #     for template in self.templates[self.ASC_STATUS_RESTORE_SANITY_STONE]:
+    #         cut_image = target_image[
+    #                     template.start_y:template.end_y,
+    #                     template.start_x:template.end_x]
+    #
+    #         # 全局阈值
+    #         difference = cv.absdiff(cut_image, template.template_data)
+    #         result = not np.any(difference)
+    #         self.logger.debug(
+    #             f"status check show {result} for {self.ASC_STATUS_RESTORE_SANITY_STONE} template {template.to_string()} ")
+    #         if result:
+    #             return True
+    #     return False
+    #
+    # def check_annihilation_settlement_status(self, target_image):
+    #     for template in self.templates[self.ASC_STATUS_ANNIHILATION_SETTLEMENT]:
+    #         cut_image = target_image[
+    #                     template.start_y:template.end_y,
+    #                     template.start_x:template.end_x]
+    #
+    #         # Otsu 阈值
+    #         _, cut_image_new = cv.threshold(cut_image, 170, 255,
+    #                                         cv.THRESH_BINARY + cv.THRESH_OTSU)
+    #         _, template_image_new = cv.threshold(template.template_data, 170, 255,
+    #                                              cv.THRESH_BINARY + cv.THRESH_OTSU)
+    #
+    #         difference = cv.absdiff(cut_image_new, template_image_new)
+    #         mean, _ = cv.meanStdDev(difference)
+    #         result = mean[0][0] < 2
+    #         self.logger.debug(f"annihilation settlement checker get mean of difference: {mean}")
+    #         self.logger.debug(
+    #             f"status check show {result} for {self.ASC_STATUS_ANNIHILATION_SETTLEMENT} "
+    #             f"template {template.to_string()} ")
+    #         if result:
+    #             return True
+    #     return False
+    #
+    # def check_restore_sanity_medicine_status(self, target_image):
+    #     for template in self.templates[self.ASC_STATUS_RESTORE_SANITY_MEDICINE]:
+    #         cut_image = target_image[
+    #                     template.start_y:template.end_y,
+    #                     template.start_x:template.end_x]
+    #
+    #         # 全局阈值
+    #         difference = cv.absdiff(cut_image, template.template_data)
+    #         mean, _ = cv.meanStdDev(difference)
+    #         result = mean[0][0] < 2
+    #         self.logger.debug(f"restore sanity medicine status checker get mean of difference: {mean}")
+    #         self.logger.debug(
+    #             f"status check show {result} for {self.ASC_STATUS_RESTORE_SANITY_MEDICINE}"
+    #             f" template {template.to_string()} ")
+    #         if result:
+    #             return True
+    #     return False
+    #
+    # def check_level_selection_status(self, target_image):
+    #     for template in self.templates[self.ASC_STATUS_LEVEL_SELECTION]:
+    #         cut_image = target_image[
+    #                     template.start_y:template.end_y,
+    #                     template.start_x:template.end_x]
+    #
+    #         # 全局阈值
+    #         difference = cv.absdiff(cut_image, template.template_data)
+    #         mean, _ = cv.meanStdDev(difference)
+    #         result = mean[0][0] < 2
+    #         self.logger.debug(f"level selection status checker get mean of difference: {mean}")
+    #         self.logger.debug(
+    #             f"status check show {result} for {self.ASC_STATUS_LEVEL_SELECTION}"
+    #             f" template {template.to_string()} ")
+    #         if result:
+    #             return True
+    #     return False
+    #
+    # def check_team_up_status(self, target_image):
+    #     for template in self.templates[self.ASC_STATUS_TEAM_UP]:
+    #         cut_image = target_image[
+    #                     template.start_y:template.end_y,
+    #                     template.start_x:template.end_x]
+    #
+    #         # 全局阈值
+    #         difference = cv.absdiff(cut_image, template.template_data)
+    #         result = not np.any(difference)
+    #         self.logger.debug(
+    #             f"status check show {result} for {self.ASC_STATUS_TEAM_UP} template {template.to_string()} ")
+    #         if result:
+    #             return True
+    #     return False
+    #
+    # def check_battle_settlement_status(self, target_image):
+    #     for template in self.templates[self.ASC_STATUS_BATTLE_SETTLEMENT]:
+    #         # 目标图片切割
+    #         cut_image = target_image[
+    #                     template.start_y:template.end_y,
+    #                     template.start_x:template.end_x]
+    #
+    #         # Otsu 阈值
+    #         _, cut_image_new = cv.threshold(cut_image, 170, 255,
+    #                                         cv.THRESH_BINARY + cv.THRESH_OTSU)
+    #         _, template_image_new = cv.threshold(template.template_data, 170, 255,
+    #                                              cv.THRESH_BINARY + cv.THRESH_OTSU)
+    #
+    #         difference = cv.absdiff(cut_image_new, template_image_new)
+    #         mean, _ = cv.meanStdDev(difference)
+    #         result = mean[0][0] < 5
+    #         self.logger.debug(f"battle settlement checker get mean of difference: {mean}")
+    #         self.logger.debug(
+    #             f"status check show {result} for {self.ASC_STATUS_BATTLE_SETTLEMENT} template {template.to_string()} ")
+    #         if result:
+    #             return True
+    #     return False
+    #
+    # def check_level_up_status(self, target_image):
+    #     for template in self.templates[self.ASC_STATUS_LEVEL_UP]:
+    #         cut_image = target_image[
+    #                     template.start_y:template.end_y,
+    #                     template.start_x:template.end_x]
+    #         # Otsu 阈值
+    #         _, cut_image_new = cv.threshold(cut_image, 170, 255,
+    #                                         cv.THRESH_BINARY + cv.THRESH_OTSU)
+    #         _, template_image_new = cv.threshold(template.template_data, 170, 255,
+    #                                              cv.THRESH_BINARY + cv.THRESH_OTSU)
+    #
+    #         difference = cv.absdiff(cut_image_new, template_image_new)
+    #         mean, _ = cv.meanStdDev(difference)
+    #         result = mean[0][0] < 2
+    #         self.logger.debug(f"level_up checker get mean of difference: {mean}")
+    #         self.logger.debug(
+    #             f"status check show {result} for {self.ASC_STATUS_FIGHTING} template {template.to_string()} ")
+    #         if result:
+    #             return True
+    #     return False
