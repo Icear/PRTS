@@ -1,7 +1,8 @@
-import os
-import cv2 as cv
-import re
 import logging
+import os
+import re
+
+import cv2 as cv
 import numpy as np
 
 
@@ -15,11 +16,11 @@ import numpy as np
 #   - 战斗结算界面 battle_settlement
 #       - 剿灭结果汇报界面 annihilation_settlement
 #       - 等级提升界面 level_up
-# 截取每个界面的特征图片，初步实现是在1920，960分辨率下在同位置图片然后比对截取的图片是否相同；
+# 截取每个界面的特征图片，初步实现是在1920，980分辨率下在同位置图片然后比对截取的图片是否相同；
 # 之后的想法是用相同的模板图片来寻找截图中对应的位置，如果存在则有
 
 
-class ArknightsStatusChecker:
+class TraditionalStatusChecker:
     _template_path = os.path.join(os.getcwd(), 'template')
     ASC_STATUS_LEVEL_SELECTION = 'level_selection'
     ASC_STATUS_RESTORE_SANITY_MEDICINE = 'restore_sanity_medicine'
@@ -83,11 +84,11 @@ class ArknightsStatusChecker:
         reg_result = re.match(
             r'.*?-(\d*?)-(\d*?)-(\d*?)-(\d*?)\.png', template_file)
         template_data = \
-            ArknightsStatusChecker.TemplateData(reg_result.group(1), reg_result.group(2),
-                                                reg_result.group(3), reg_result.group(4),
-                                                cv.imread(os.path.join(ArknightsStatusChecker._template_path,
-                                                                       template_file), cv.IMREAD_GRAYSCALE)
-                                                )
+            TraditionalStatusChecker.TemplateData(reg_result.group(1), reg_result.group(2),
+                                                  reg_result.group(3), reg_result.group(4),
+                                                  cv.imread(os.path.join(TraditionalStatusChecker._template_path,
+                                                                         template_file), cv.IMREAD_GRAYSCALE)
+                                                  )
         return template_data
 
     # 通过传入的屏幕截图来确定当前游戏状态
@@ -193,9 +194,12 @@ class ArknightsStatusChecker:
 
             # 全局阈值
             difference = cv.absdiff(cut_image, template.template_data)
-            result = not np.any(difference)
+            mean, _ = cv.meanStdDev(difference)
+            result = mean[0][0] < 2
+            self.logger.debug(f"level selection status checker get mean of difference: {mean}")
             self.logger.debug(
-                f"status check show {result} for {self.ASC_STATUS_LEVEL_SELECTION} template {template.to_string()} ")
+                f"status check show {result} for {self.ASC_STATUS_LEVEL_SELECTION}"
+                f" template {template.to_string()} ")
             if result:
                 return True
         return False

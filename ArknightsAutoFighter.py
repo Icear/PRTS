@@ -1,15 +1,17 @@
-import os
-import time
-import random
-import re
-import cv2 as cv
-import numpy
-import subprocess
+import argparse
 import datetime
 import logging
+import os
+import random
+import re
+import subprocess
 import sys
-from ArknightsStatusChecker import ArknightsStatusChecker
-import argparse
+import time
+
+import cv2 as cv
+import numpy
+
+from StatusChecker.TraditionalStatusChecker import TraditionalStatusChecker
 
 
 class ArknightsAutoFighter:
@@ -22,9 +24,10 @@ class ArknightsAutoFighter:
 
     class ADBController:
         adb_path = 'adb'
+
         def __init__(self):
             self.logger = logging.getLogger('ADBController')
-            
+
             self.logger.info(f"resetting ADB server...")
             output, error = self.exec([self.adb_path, "kill-server"])
             self.logger.debug(f"kill server, result: {output}, stderr: {error}")
@@ -32,11 +35,11 @@ class ArknightsAutoFighter:
             self.logger.debug(f"start server, result: {output}, stderr {error}")
             output, error = self.exec([self.adb_path, "connect", "127.0.0.1:62001"])
             self.logger.debug(f"connect to device, result: {output}, stderr {error}")
-            
 
+            self.adb_prefix = ["-s", "127.0.0.1:62001"]
             # self.adb_prefix = ["-s", "127.0.0.1:7555"]
             # self.adb_prefix = ["-s", "emulator-5564"] # prefix parameters
-            self.adb_prefix = []
+            # self.adb_prefix = []
             self.wait_for_device()
 
         def get_device_screen_picture(self):
@@ -81,14 +84,14 @@ class ArknightsAutoFighter:
                 self.logger.error(f"command click error: {error}")
                 exit(-1)
             self.logger.debug(f"click result: {output}")
-        
+
         def exec(self, command):
             with subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as pipe:
                 stdout, stderr = pipe.communicate()
             return stdout, bytes.decode(stderr)
 
     class PictureLogger:
-        log_delete_last = True
+        log_delete_last = False
         log_path = os.path.join(os.getcwd(), 'log', 'picture_log')
         log_line_color = (255, 0, 0)
         log_line_thickness = 2
@@ -171,8 +174,8 @@ class ArknightsAutoFighter:
         :param allow_use_medicine:  是否允许使用回体力药剂
         """
         self.logger = logging.getLogger('ArknightsAutoFighter')
-        # 初始化StatusChekcer
-        self.status_checker = ArknightsStatusChecker()
+        # 初始化StatusChecker
+        self.status_checker = TraditionalStatusChecker()
         # 连接并初始化设备
         self.adb_controller = self.ADBController()
         # 初始化日志
@@ -230,6 +233,7 @@ class ArknightsAutoFighter:
             last_status = status
             screen_cap = self.adb_controller.get_device_screen_picture()  # 取得截图
             status = self.status_checker.check_status(screen_cap)  # 检查状态
+            self.picture_logger.log(-1, -1, status, screen_cap)
             if status == self.status_checker.ASC_STATUS_LEVEL_SELECTION:
                 # 在关卡选择界面
                 if fight_finished:
@@ -259,7 +263,7 @@ class ArknightsAutoFighter:
                 # 在队伍选择界面
                 # 尝试进入战斗界面
                 self._enter_game()
-                self._sleep(random.uniform(10, 15))  # 等待游戏响应
+                self._sleep(random.uniform(15, 20))  # 等待游戏响应
                 continue
             if status == self.status_checker.ASC_STATUS_FIGHTING:
                 # 在战斗界面
@@ -283,9 +287,9 @@ class ArknightsAutoFighter:
             if status == self.status_checker.ASC_STATUS_LEVEL_UP:
                 # 升级界面
                 # 尝试离开升级界面
-                self._leave_level_up_settlement() 
-                self._sleep(random.uniform(3,5))  # 等待游戏响应
-                continue 
+                self._leave_level_up_settlement()
+                self._sleep(random.uniform(3, 5))  # 等待游戏响应
+                continue
             if status == self.status_checker.ASC_STATUS_UNKNOWN:
                 # 未知状态，等待二十秒后再次检查
                 self.picture_logger.log(1, 1, "unrecognized status for ArkngithsStatusChecker",
@@ -313,8 +317,8 @@ class ArknightsAutoFighter:
         point_x = int(point_x)
         point_y = int(point_y)
 
-        self.picture_logger.log(point_x, point_y, f"leave_settlement({point_x},{point_y})",
-                                self.adb_controller.get_device_screen_picture())
+        # self.picture_logger.log(point_x, point_y, f"leave_settlement({point_x},{point_y})",
+        #                         self.adb_controller.get_device_screen_picture())
         self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
 
     def _leave_annihilation_settlement(self):
@@ -331,8 +335,8 @@ class ArknightsAutoFighter:
             point_x, point_y, self.device_config['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
         point_y = int(point_y)
-        self.picture_logger.log(point_x, point_y, f"exit_proxy_fight_result_interface({point_x},{point_y})",
-                                self.adb_controller.get_device_screen_picture())
+        # self.picture_logger.log(point_x, point_y, f"exit_proxy_fight_result_interface({point_x},{point_y})",
+        #                         self.adb_controller.get_device_screen_picture())
         self.adb_controller.click(point_x, point_y)
 
     def _leave_level_up_settlement(self):
@@ -349,8 +353,8 @@ class ArknightsAutoFighter:
             point_x, point_y, self.device_config['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
         point_y = int(point_y)
-        self.picture_logger.log(point_x, point_y, f"exit_level_up_interface({point_x},{point_y})",
-                                self.adb_controller.get_device_screen_picture())
+        # self.picture_logger.log(point_x, point_y, f"exit_level_up_interface({point_x},{point_y})",
+        #                         self.adb_controller.get_device_screen_picture())
         self.adb_controller.click(point_x, point_y)
 
     def _enter_game(self):
@@ -367,8 +371,8 @@ class ArknightsAutoFighter:
             point_x, point_y, self.device_config['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
         point_y = int(point_y)
-        self.picture_logger.log(point_x, point_y, f"enter_game({point_x},{point_y})",
-                                self.adb_controller.get_device_screen_picture())
+        # self.picture_logger.log(point_x, point_y, f"enter_game({point_x},{point_y})",
+        #                         self.adb_controller.get_device_screen_picture())
         self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
 
     def _enter_team_up(self):
@@ -386,8 +390,8 @@ class ArknightsAutoFighter:
             point_x, point_y, self.device_config['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
         point_y = int(point_y)
-        self.picture_logger.log(point_x, point_y, f"enter_team_up({point_x},{point_y})",
-                                self.adb_controller.get_device_screen_picture())
+        # self.picture_logger.log(point_x, point_y, f"enter_team_up({point_x},{point_y})",
+        #                         self.adb_controller.get_device_screen_picture())
         self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
 
     def _confirm_sanity_restore(self):
@@ -404,35 +408,39 @@ class ArknightsAutoFighter:
             point_x, point_y, self.device_config['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
         point_y = int(point_y)
-        self.picture_logger.log(point_x, point_y, f"confirm_restore_sanity({point_x},{point_y})",
-                                self.adb_controller.get_device_screen_picture())
+        # self.picture_logger.log(point_x, point_y, f"confirm_restore_sanity({point_x},{point_y})",
+        #                         self.adb_controller.get_device_screen_picture())
         self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
-
 
 
 # 启动参数
 parser = argparse.ArgumentParser(description='Arkngihts auto fighter')
-parser.add_argument('-t', '--times',  help='script run times, set 0 to unlimited run util sanity runs out, default 0 / 战斗次数，0表示刷至体力耗尽，默认为0', type=int, default=0)
-parser.add_argument('-m', '--medicine',  help='allow using medicine to restore sanity, default false / 允许使用体力药水来恢复体力，默认为否',
-                    default=True, action='store_true')
+parser.add_argument('-t', '--times',
+                    help='script run times, set 0 to unlimited run util sanity runs out, default 0 / 战斗次数，0表示刷至体力耗尽，默认为0',
+                    type=int, default=0)
+parser.add_argument('-m', '--medicine',
+                    help='allow using medicine to restore sanity, default false / 允许使用体力药水来恢复体力，默认为否',
+                    default=False, action='store_true')
 parser.add_argument('-c', '--callback', help='the callback command to run after script finished / 程序完成后执行的回调命令')
 args = parser.parse_args()
 
-
 if __name__ == '__main__':
-    # 清理 log
-    if(os.path.exists(os.path.join(os.getcwd(),'log','ArknightsAutoFighter.log'))):
-        os.remove(os.path.join(os.getcwd(),'log','ArknightsAutoFighter.log'))
+    if (not os.path.exists(os.path.join(os.getcwd(), 'log'))):
+        os.mkdir(os.path.join(os.getcwd(), 'log'))
+        # 清理 log
+    if (os.path.exists(os.path.join(os.getcwd(), 'log', 'ArknightsAutoFighter.log'))):
+        os.remove(os.path.join(os.getcwd(), 'log', 'ArknightsAutoFighter.log'))
     # 设置写入 DEBUG 级 log 到文件
     logging.basicConfig(level=logging.DEBUG,
                         format=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
                         datefmt='%Y/%m/%d %I:%M:%S %p',
-                        filename=os.path.join(os.getcwd(),'log','ArknightsAutoFighter.log')
+                        filename=os.path.join(os.getcwd(), 'log', 'ArknightsAutoFighter.log')
                         )
     # 设置额外 handle 输出至 console，info 级别
     consoleLog = logging.StreamHandler(stream=sys.stdout)
     consoleLog.setLevel(logging.INFO)
-    formatter = logging.Formatter(fmt=' %(asctime)s %(levelname)s: %(module)s: %(message)s', datefmt='%Y/%m/%d %I:%M:%S %p')
+    formatter = logging.Formatter(fmt=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
+                                  datefmt='%Y/%m/%d %I:%M:%S %p')
     consoleLog.setFormatter(fmt=formatter)
     logging.getLogger().addHandler(consoleLog)
 
@@ -457,7 +465,7 @@ if __name__ == '__main__':
     else:
         logging.warning(
             "unset fight times, script will keep running util sanity uses up")
-    
+
     if args.callback:
         logging.warning(f"recieve callback command:{args.callback}, recorded")
 
