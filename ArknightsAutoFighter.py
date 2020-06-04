@@ -416,7 +416,8 @@ class ArknightsAutoFighter:
 # 启动参数
 parser = argparse.ArgumentParser(description='Arkngihts auto fighter')
 parser.add_argument('-t', '--times',
-                    help='script run times, set 0 to unlimited run util sanity runs out, default 0 / 战斗次数，0表示刷至体力耗尽，默认为0',
+                    help='script run times, set 0 to unlimited run util sanity runs out, default 0 / '
+                         '战斗次数，0表示刷至体力耗尽，默认为0',
                     type=int, default=0)
 parser.add_argument('-m', '--medicine',
                     help='allow using medicine to restore sanity, default false / 允许使用体力药水来恢复体力，默认为否',
@@ -425,10 +426,10 @@ parser.add_argument('-c', '--callback', help='the callback command to run after 
 args = parser.parse_args()
 
 if __name__ == '__main__':
-    if (not os.path.exists(os.path.join(os.getcwd(), 'log'))):
+    if not os.path.exists(os.path.join(os.getcwd(), 'log')):
         os.mkdir(os.path.join(os.getcwd(), 'log'))
         # 清理 log
-    if (os.path.exists(os.path.join(os.getcwd(), 'log', 'ArknightsAutoFighter.log'))):
+    if os.path.exists(os.path.join(os.getcwd(), 'log', 'ArknightsAutoFighter.log')):
         os.remove(os.path.join(os.getcwd(), 'log', 'ArknightsAutoFighter.log'))
     # 设置写入 DEBUG 级 log 到文件
     logging.basicConfig(level=logging.DEBUG,
@@ -458,7 +459,7 @@ if __name__ == '__main__':
     if args.medicine:
         logging.warning("allow using medicine to restore sanity")
     else:
-        logging.warning("disable using medcine")
+        logging.warning("disable using medicine")
 
     if args.times != 0:
         logging.warning(f"fight times set to {args.times}")
@@ -467,7 +468,7 @@ if __name__ == '__main__':
             "unset fight times, script will keep running util sanity uses up")
 
     if args.callback:
-        logging.warning(f"recieve callback command:{args.callback}, recorded")
+        logging.warning(f"receive callback command:{args.callback}, recorded")
 
     af = ArknightsAutoFighter(args.times, args.medicine)
     af.auto_fight()
@@ -475,4 +476,4 @@ if __name__ == '__main__':
         logging.warning("executing callback command...")
         logging.warning(args.callback)
         output = os.system(args.callback)
-        logging.warning(f"done, reuslt: {output}")
+        logging.warning(f"done, result: {output}")
