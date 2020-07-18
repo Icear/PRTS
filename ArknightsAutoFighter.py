@@ -220,6 +220,7 @@ class ArknightsAutoFighter:
             self.logger.error("fight finished with error")
             return
         self.logger.warning("finished")
+        return True
 
     def _auto_fight_once(self):
         """
