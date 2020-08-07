@@ -15,6 +15,14 @@ from StatusChecker.TraditionalStatusChecker import TraditionalStatusChecker
 
 
 class ArknightsAutoFighter:
+    class SanityUsedUpException(Exception):
+        def __init__(self, *args: object) -> None:
+            super().__init__(*args)
+
+    class StatusUnrecognizedException(Exception):
+        def __init__(self, *args: object) -> None:
+            super().__init__(*args)
+
     class Screen:
         def __init__(self, length_x, width_y):
             self.length = int(length_x)
@@ -205,22 +213,33 @@ class ArknightsAutoFighter:
 
     def auto_fight(self):
         # 循环调用auto_fight_once 来进行战斗
+        # 退出情况有以下几种
+        #   - 战斗次数结束退出（正常退出）
+        #   - 理智耗尽退出（正常退出）
+        #   - 无法识别状态退出（异常退出）
         self.logger.warning(
             f"start the {self.fight_count}/{self.target_game_times} fights")
-        while self._auto_fight_once():
-            self.logger.warning(
-                f"end the {self.fight_count}/{self.target_game_times} fights")
-            self.fight_count += 1
-            if self.fight_count > self.target_game_times != 0:
-                # 次数达成，结束
-                logging.info('finished')
-                return
-        if self.target_game_times != 0:
-            # 非正常退出
-            self.logger.error("fight finished with error")
-            return
-        self.logger.warning("finished")
-        return True
+        try:
+            while self._auto_fight_once():
+                self.logger.warning(
+                    f"end the {self.fight_count}/{self.target_game_times} fights")
+                self.fight_count += 1
+                if self.fight_count > self.target_game_times and self.fight_count != 0:
+                    # 次数达成，结束
+                    self.logger.info('finished')
+                    return True
+        except ArknightsAutoFighter.SanityUsedUpException as sanity_used_up_exception:
+            self.logger.error(sanity_used_up_exception)
+            if self.target_game_times != 0:
+                # 非正常退出
+                self.logger.error("fight finished with error")
+                raise sanity_used_up_exception
+                # return False, sanity_used_up_exception
+            return True
+        except ArknightsAutoFighter.StatusUnrecognizedException as status_unrecognized_exception:
+            self.logger.error(status_unrecognized_exception)
+            raise status_unrecognized_exception
+            # return False, status_unrecognized_exception
 
     def _auto_fight_once(self):
         """
@@ -252,9 +271,9 @@ class ArknightsAutoFighter:
                     self._confirm_sanity_restore()  # 使用体力药剂
                     self._sleep(random.uniform(3, 4))  # 等待游戏响应
                     continue
-                self.logger.error(
+                # return False
+                raise ArknightsAutoFighter.SanityUsedUpException(
                     f"can't continue due to bad status: {self.status_checker.ASC_STATUS_RESTORE_SANITY_MEDICINE}")
-                return False
             if status == self.status_checker.ASC_STATUS_RESTORE_SANITY_STONE:
                 # 在体力不足界面
                 self.logger.error(
@@ -297,9 +316,9 @@ class ArknightsAutoFighter:
                                         screen_cap)
                 if last_status == status:
                     # 连续2次检查失败则报错
-                    self.logger.error(
+                    raise ArknightsAutoFighter.StatusUnrecognizedException(
                         f"error, unrecognized status, check out log for screen shot")
-                    return False
+                    # return False
                 self._sleep(10)
                 continue
 
@@ -424,6 +443,8 @@ parser.add_argument('-m', '--medicine',
                     help='allow using medicine to restore sanity, default false / 允许使用体力药水来恢复体力，默认为否',
                     default=False, action='store_true')
 parser.add_argument('-c', '--callback', help='the callback command to run after script finished / 程序完成后执行的回调命令')
+parser.add_argument('-f', '--fallback',
+                    help='the fallback command to run after script failed, support {} format for more detail')
 args = parser.parse_args()
 
 if __name__ == '__main__':
@@ -471,6 +492,8 @@ if __name__ == '__main__':
     if args.callback:
         logging.warning(f"receive callback command:{args.callback}, recorded")
 
+    if args.fallback:
+        logging.warning(f"receive fallback command:{args.fallback}, recorded")
     af = ArknightsAutoFighter(args.times, args.medicine)
     af.auto_fight()
     if args.callback:
