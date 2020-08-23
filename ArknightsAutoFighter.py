@@ -288,7 +288,7 @@ class ArknightsAutoFighter:
             if status == self.status_checker.ASC_STATUS_FIGHTING:
                 # 在战斗界面
                 # 等待5秒后重新检查
-                self._sleep(15)
+                self._sleep(25)
                 continue
             if status == self.status_checker.ASC_STATUS_ANNIHILATION_SETTLEMENT:
                 # 在剿灭结算界面
@@ -319,7 +319,7 @@ class ArknightsAutoFighter:
                     raise ArknightsAutoFighter.StatusUnrecognizedException(
                         f"error, unrecognized status, check out log for screen shot")
                     # return False
-                self._sleep(10)
+                self._sleep(15)
                 continue
 
     def _leave_settlement(self):
