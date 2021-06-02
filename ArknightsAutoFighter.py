@@ -206,7 +206,7 @@ class ArknightsAutoFighter:
         'menu_button_y': 54,
         'home_button_x': 217,
         'home_button_y': 338,
-        'mission_button_x': 1251,
+        'mission_button_x': 1351,
         'mission_button_y': 812,
         'task_button_x': 1603,
         'task_button_y': 193,
@@ -312,7 +312,7 @@ class ArknightsAutoFighter:
                     return True  # 战斗结束成功返回关卡选择界面，战斗结束
                 # 尝试进入关卡选择界面
                 self._enter_team_up()
-                self._sleep(random.uniform(3, 5))  # 等待游戏响应
+                self._sleep(random.uniform(5, 9))  # 等待游戏响应
                 continue
             if status == self.status_checker.ASC_STATUS_RESTORE_SANITY_MEDICINE:
                 # 在体力不足界面
@@ -371,7 +371,7 @@ class ArknightsAutoFighter:
                     raise ArknightsAutoFighter.StatusUnrecognizedException(
                         f"error, unrecognized status, check out log for screen shot")
                     # return False
-                self._sleep(8)
+                self._sleep(20)
                 continue
 
     def _leave_settlement(self):

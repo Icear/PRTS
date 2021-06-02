@@ -137,7 +137,7 @@ class TraditionalStatusChecker:
 
             difference = cv.absdiff(cut_image_new, template_image_new)
             mean, _ = cv.meanStdDev(difference)
-            result = mean[0][0] < 2
+            result = mean[0][0] < 10
             self.logger.debug(f"{target} get mean of difference: {mean}")
             self.logger.debug(
                 f"status check show {result} for {target} template {template.to_string()} ")

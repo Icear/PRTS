@@ -54,4 +54,4 @@ def cut_template(target_status):
 
 
 if __name__ == '__main__':
-    cut_template(TraditionalStatusChecker.ASC_STATUS_LEVEL_SELECTION)
+    cut_template(TraditionalStatusChecker.ASC_STATUS_LEVEL_UP)
