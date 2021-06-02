@@ -33,7 +33,7 @@ class ArknightsAutoFighter:
 
     class ADBController:
         # adb_path = 'adb'
-        adb_path = r'D:\\software\\Android\\sdk\\platform-tools\\adb.exe'
+        adb_path = r'adb.exe'
 
         def __init__(self):
             self.logger = logging.getLogger('ADBController')
