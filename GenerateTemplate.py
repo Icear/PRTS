@@ -3,8 +3,8 @@ import os
 import cv2 as cv
 import numpy
 
-from ArknightsAutoFighter import ArknightsAutoFighter
-from StatusChecker.TraditionalStatusChecker import TraditionalStatusChecker
+import controller
+from statuschecker.TraditionalStatusChecker import TraditionalStatusChecker
 
 flags = True
 start_x = 0
@@ -16,8 +16,8 @@ end_y = 0
 # 用于生成模板，读取目标图片并弹出窗口以供剪切模板，剪切后输出至当前目录
 def cut_template(target_status):
     # add part
-    auto_fight = ArknightsAutoFighter(1, False)
-    adb = auto_fight.ADBController()
+    # auto_fight = ArknightsAutoFighter(1, False)
+    adb = controller.ADBController()
     adb.wait_for_device()
     screen_shot = adb.get_device_screen_picture()
     image = cv.imdecode(numpy.frombuffer(

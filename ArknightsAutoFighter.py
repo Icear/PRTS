@@ -3,16 +3,14 @@ import datetime
 import logging
 import os
 import random
-import re
-import subprocess
 import sys
 import time
-import signal
 
 import cv2 as cv
 import numpy
 
-from StatusChecker.TraditionalStatusChecker import TraditionalStatusChecker
+import controller
+from statuschecker.TraditionalStatusChecker import TraditionalStatusChecker
 
 
 class ArknightsAutoFighter:
@@ -30,101 +28,6 @@ class ArknightsAutoFighter:
             self.width = int(width_y)
             if self.length < self.width:
                 self.length, self.width = self.width, self.length
-
-    class ADBController:
-        # adb_path = 'adb'
-        adb_path = r'adb.exe'
-
-        def __init__(self):
-            self.logger = logging.getLogger('ADBController')
-
-            self.logger.info(f"resetting ADB server...")
-            output, error = self.exec([self.adb_path, "kill-server"])
-            self.logger.debug(f"kill server, result: {output}, stderr: {error}")
-            output, error = self.exec([self.adb_path, "start-server"])
-            # self.logger.debug(f"start server, result: {output}, stderr {error}")
-            # output, error = self.exec([self.adb_path, "connect", "127.0.0.1:7555"])
-            # self.logger.debug(f"connect to device, result: {output}, stderr {error}")
-            
-            output, error = self.exec([self.adb_path, "connect", "127.0.0.1:5555"])
-            self.logger.debug(f"connect to device, result: {output}, stderr {error}")
-
-            # self.adb_prefix = ["-s", "127.0.0.1:62025"]
-            # self.adb_prefix = ["-s", "127.0.0.1:7555"]
-            self.adb_prefix = ["-s", "127.0.0.1:5555"]
-            # self.adb_prefix = ["-s", "emulator-5554"] # prefix parameters
-            # self.adb_prefix = []
-            self.wait_for_device()
-
-        def get_device_screen_picture(self):
-            output, error = self.exec([self.adb_path] + self.adb_prefix + ["exec-out", "screencap", "-p"])
-            if error != '':
-                self.logger.error(f"command get_device_screen_picture error: {error}")
-                exit(-1)
-            self.logger.debug(f"get screen pic, stderr: {error}")
-            return output
-
-        def get_device_resolution(self):
-            self.logger.info('getting device screen resolution...')
-            pattern = re.compile(r'.*? (\d*?)x(\d*?)$')
-            output, error = self.exec([self.adb_path] + self.adb_prefix + ["shell", "wm", "size"])
-            if error != '':
-                self.logger.error(f"command get_device_resolution error: {error}")
-                exit(-1)
-            result = bytes.decode(output).strip()
-            self.logger.debug(f"check resolution, result: {result}, stderr: {error}")
-            match_result = pattern.match(result)
-            screen_resolution = ArknightsAutoFighter.Screen(
-                match_result[1], match_result[2])
-            self.logger.info(
-                f"screen size is {screen_resolution.length}x{screen_resolution.width}")
-            return screen_resolution
-
-        def wait_for_device(self):
-            self.logger.info('waiting for device...')
-            output, error = self.exec([self.adb_path] + self.adb_prefix + ["wait-for-device"])
-            self.logger.debug(f"waiting for device result: {output}, stderr: {error} ")
-            if error != '':
-                self.logger.error(f"command wait_for_device error: {error}")
-                exit(-1)
-            self.logger.info('device connected')
-
-        def click(self, x, y):
-            x = round(x, 0)
-            y = round(y, 0)
-            self.logger.info(f"tap({x}, {y})")
-            output, error = self.exec([self.adb_path] + self.adb_prefix + ["shell", "input", "tap", str(x), str(y)])
-            if error != '':
-                self.logger.error(f"command click error: {error}")
-                exit(-1)
-            self.logger.debug(f"click result: {output}")
-
-        def exec_run(self, command):
-            with subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as pipe:
-                try:
-                    stdout, stderr = pipe.communicate(timeout=300)
-                except subprocess.TimeoutExpired as timeout_ex:
-                    os.killpg(pipe.pid, signal.SIGUSR1)
-                    raise timeout_ex
-            return stdout, bytes.decode(stderr)
-
-        def exec(self, command):
-            stdout = None
-            stderr = None
-            exception_t = None
-            try:
-                stdout, stderr = self.exec_run(command=command)
-                if stderr is None:
-                    return stdout, None
-            except PermissionError as err:
-                self.logger.debug(f"exec {command}, get error {err.__class__}: {err}")
-                raise err
-            except Exception as ex:
-                self.logger.debug(f"exec {command}, get exception {ex.__class__}: {ex}")
-                raise ex
-            
-            self.logger.debug(f"exec {command}, stdout: {stdout}, stderr: {stderr}")
-            return stdout, stderr
 
     class PictureLogger:
         log_delete_last = False
@@ -212,7 +115,7 @@ class ArknightsAutoFighter:
         'task_button_y': 193,
     }
 
-    def __init__(self, fight_times, allow_use_medicine=False):
+    def __init__(self, fight_times, controller: controller.Controller, allow_use_medicine=False):
         """
         :param fight_times: 刷的次数，0为刷到体力不足
         :param allow_use_medicine:  是否允许使用回体力药剂
@@ -221,12 +124,13 @@ class ArknightsAutoFighter:
         # 初始化StatusChecker
         self.status_checker = TraditionalStatusChecker()
         # 连接并初始化设备
-        self.adb_controller = self.ADBController()
+        self.controller = controller
         # 初始化日志
         self.picture_logger = self.PictureLogger()
         # 获取设备分辨率
         self.target_resolution = self.device_config['screen_resolution']
-        self.target_resolution = self.adb_controller.get_device_resolution()
+        x, y = self.controller.get_device_resolution()
+        self.target_resolution = self.Screen(x, y)
         # 初始化统计变量
         self.fight_count = 1
         self.target_game_times = int(fight_times)
@@ -251,16 +155,15 @@ class ArknightsAutoFighter:
         self.logger.info("do complete task")
         # self.adb_controller.click(self.device_config['menu_button_x'], self.device_config['menu_button_y'])
         self._sleep(10)
-        self.adb_controller.click(self.device_config['menu_button_x'], self.device_config['menu_button_y'])
+        self.controller.click(self.device_config['menu_button_x'], self.device_config['menu_button_y'])
         self._sleep(1)
-        self.adb_controller.click(self.device_config['home_button_x'], self.device_config['home_button_y'])
+        self.controller.click(self.device_config['home_button_x'], self.device_config['home_button_y'])
         self._sleep(4)
-        self.adb_controller.click(self.device_config['mission_button_x'], self.device_config['mission_button_y'])
+        self.controller.click(self.device_config['mission_button_x'], self.device_config['mission_button_y'])
         self._sleep(2)
         for i in range(24):
-            self.adb_controller.click(self.device_config['task_button_x'], self.device_config['task_button_y'])
+            self.controller.click(self.device_config['task_button_x'], self.device_config['task_button_y'])
             self._sleep(2)
-
 
     def auto_fight(self):
         # 循环调用auto_fight_once 来进行战斗
@@ -302,7 +205,7 @@ class ArknightsAutoFighter:
         status = ''
         while True:
             last_status = status
-            screen_cap = self.adb_controller.get_device_screen_picture()  # 取得截图
+            screen_cap = self.controller.get_device_screen_picture()  # 取得截图
             status = self.status_checker.check_status(screen_cap)  # 检查状态
             self.picture_logger.log(-1, -1, status, screen_cap)
 
@@ -391,7 +294,7 @@ class ArknightsAutoFighter:
 
         # self.picture_logger.log(point_x, point_y, f"leave_settlement({point_x},{point_y})",
         #                         self.adb_controller.get_device_screen_picture())
-        self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
+        self.controller.click(point_x, point_y)  # 点击时加上随机偏移量
 
     def _leave_annihilation_settlement(self):
         """
@@ -409,7 +312,7 @@ class ArknightsAutoFighter:
         point_y = int(point_y)
         # self.picture_logger.log(point_x, point_y, f"exit_proxy_fight_result_interface({point_x},{point_y})",
         #                         self.adb_controller.get_device_screen_picture())
-        self.adb_controller.click(point_x, point_y)
+        self.controller.click(point_x, point_y)
 
     def _leave_level_up_settlement(self):
         """
@@ -427,7 +330,7 @@ class ArknightsAutoFighter:
         point_y = int(point_y)
         # self.picture_logger.log(point_x, point_y, f"exit_level_up_interface({point_x},{point_y})",
         #                         self.adb_controller.get_device_screen_picture())
-        self.adb_controller.click(point_x, point_y)
+        self.controller.click(point_x, point_y)
 
     def _enter_game(self):
         """
@@ -445,7 +348,7 @@ class ArknightsAutoFighter:
         point_y = int(point_y)
         # self.picture_logger.log(point_x, point_y, f"enter_game({point_x},{point_y})",
         #                         self.adb_controller.get_device_screen_picture())
-        self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
+        self.controller.click(point_x, point_y)  # 点击时加上随机偏移量
 
     def _enter_team_up(self):
         """
@@ -464,7 +367,7 @@ class ArknightsAutoFighter:
         point_y = int(point_y)
         # self.picture_logger.log(point_x, point_y, f"enter_team_up({point_x},{point_y})",
         #                         self.adb_controller.get_device_screen_picture())
-        self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
+        self.controller.click(point_x, point_y)  # 点击时加上随机偏移量
 
     def _confirm_sanity_restore(self):
         """
@@ -482,7 +385,7 @@ class ArknightsAutoFighter:
         point_y = int(point_y)
         # self.picture_logger.log(point_x, point_y, f"confirm_restore_sanity({point_x},{point_y})",
         #                         self.adb_controller.get_device_screen_picture())
-        self.adb_controller.click(point_x, point_y)  # 点击时加上随机偏移量
+        self.controller.click(point_x, point_y)  # 点击时加上随机偏移量
 
 
 # 启动参数
@@ -536,7 +439,7 @@ if __name__ == '__main__':
         logging.warning("allow using medicine to restore sanity")
     else:
         logging.warning("disable using medicine")
-    
+
     if args.completetask:
         logging.warning("will automatic finish task after script finish")
 
@@ -551,9 +454,10 @@ if __name__ == '__main__':
 
     if args.fallback:
         logging.warning(f"receive fallback command:{args.fallback}, recorded")
-    af = ArknightsAutoFighter(args.times, args.medicine)
+    auto_fighter = ArknightsAutoFighter(fight_times=args.times, controller=controller.ADBController(),
+                                        allow_use_medicine=args.medicine)
     try:
-        result = af.auto_fight()
+        result = auto_fighter.auto_fight()
         # result = False
         if args.callback and result:
             logging.warning("executing callback command...")
@@ -561,13 +465,13 @@ if __name__ == '__main__':
             output = os.system(args.callback)
             logging.warning(f"done, result: {output}")
         logging.info(f"final result is {result}")
-    except (ArknightsAutoFighter.SanityUsedUpException) as e:
+    except ArknightsAutoFighter.SanityUsedUpException as e:
         if args.fallback:
             logging.warning("executing fallback command...")
             logging.warning(args.fallback.format(e))
             output = os.system(args.fallback.format(e))
             logging.warning(f"done, result: {output}")
-    except (ArknightsAutoFighter.StatusUnrecognizedException) as e:
+    except ArknightsAutoFighter.StatusUnrecognizedException as e:
         if args.fallback:
             logging.warning("executing fallback command...")
             logging.warning(args.fallback.format(e))
@@ -575,4 +479,4 @@ if __name__ == '__main__':
             logging.warning(f"done, result: {output}")
         exit(-1)
     if args.completetask:
-            af.do_mission_complete()
+        auto_fighter.do_mission_complete()

@@ -2,7 +2,7 @@ import logging
 import os
 import sys
 
-from StatusChecker import TraditionalStatusChecker
+from statuschecker import TraditionalStatusChecker
 
 if __name__ == '__main__':
     # 清理 log
