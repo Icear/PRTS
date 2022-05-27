@@ -3,7 +3,7 @@ import os
 import cv2 as cv
 import numpy
 
-import controller
+from controller import *
 from statuschecker.TraditionalStatusChecker import TraditionalStatusChecker
 
 flags = True
@@ -15,9 +15,10 @@ end_y = 0
 
 # 用于生成模板，读取目标图片并弹出窗口以供剪切模板，剪切后输出至当前目录
 def cut_template(target_status):
+    global flags, start_x, start_y, end_x, end_y
     # add part
     # auto_fight = ArknightsAutoFighter(1, False)
-    adb = controller.ADBController()
+    adb = ADBController.ADBController()
     adb.wait_for_device()
     screen_shot = adb.get_device_screen_picture()
     image = cv.imdecode(numpy.frombuffer(
@@ -54,4 +55,4 @@ def cut_template(target_status):
 
 
 if __name__ == '__main__':
-    cut_template(TraditionalStatusChecker.ASC_STATUS_LEVEL_UP)
+    cut_template(TraditionalStatusChecker.ASC_STATUS_LEVEL_SELECTION)
