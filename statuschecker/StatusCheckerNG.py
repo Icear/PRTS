@@ -12,7 +12,7 @@ class Model(torch.nn.Module):
         self.conv1 = torch.nn.Conv2d(1, 16, kernel_size=3, stride=2, padding=1)
         self.conv2 = torch.nn.Conv2d(16, 16, kernel_size=3, stride=2, padding=1)
         self.conv3 = torch.nn.Conv2d(16, 10, kernel_size=3, stride=2, padding=1)
-        self.fc = torch.nn.Linear()
+        # self.fc = torch.nn.Linear()
 
     def forward(self, xb):
         xb = torch.nn.functional.relu(self.conv1(xb))
