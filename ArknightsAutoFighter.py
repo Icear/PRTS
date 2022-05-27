@@ -9,7 +9,7 @@ import time
 import cv2 as cv
 import numpy
 
-import controller
+from controller import *
 from statuschecker.TraditionalStatusChecker import TraditionalStatusChecker
 
 
@@ -113,9 +113,15 @@ class ArknightsAutoFighter:
         'mission_button_y': 812,
         'task_button_x': 1603,
         'task_button_y': 193,
+        'confirm_retry_connection_x': 1108,
+        'confirm_retry_connection_y': 618,
+        'confirm_retry_connection_x_prefix_start': 0,
+        'confirm_retry_connection_x_prefix_end': 450,
+        'confirm_retry_connection_y_prefix_start': 0,
+        'confirm_retry_connection_y_prefix_end': 100,
     }
 
-    def __init__(self, fight_times, controller: controller.Controller, allow_use_medicine=False):
+    def __init__(self, fight_times, controller, allow_use_medicine=False):
         """
         :param fight_times: 刷的次数，0为刷到体力不足
         :param allow_use_medicine:  是否允许使用回体力药剂
@@ -243,7 +249,7 @@ class ArknightsAutoFighter:
             if status == self.status_checker.ASC_STATUS_FIGHTING:
                 # 在战斗界面
                 # 等待5秒后重新检查
-                self._sleep(120)
+                self._sleep(30)
                 continue
             if status == self.status_checker.ASC_STATUS_ANNIHILATION_SETTLEMENT:
                 # 在剿灭结算界面
@@ -265,6 +271,9 @@ class ArknightsAutoFighter:
                 self._leave_level_up_settlement()
                 self._sleep(random.uniform(3, 5))  # 等待游戏响应
                 continue
+            if status == self.status_checker.ASC_STATUS_CONNECT_FAILED:
+                self._retry_connection()
+                self._sleep(random.uniform(5, 10))
             if status == self.status_checker.ASC_STATUS_UNKNOWN:
                 # 未知状态，等待二十秒后再次检查
                 self.picture_logger.log(1, 1, "unrecognized status for ArkngithsStatusChecker",
@@ -324,6 +333,24 @@ class ArknightsAutoFighter:
         point_y = self.device_config['leave_level_up_y'] + random.uniform(
             self.device_config['leave_level_up_y_prefix_start'],
             self.device_config['leave_level_up_y_prefix_end'])
+        point_x, point_y = self._compute_new_point(
+            point_x, point_y, self.device_config['screen_resolution'], self.target_resolution)
+        point_x = int(point_x)
+        point_y = int(point_y)
+        # self.picture_logger.log(point_x, point_y, f"exit_level_up_interface({point_x},{point_y})",
+        #                         self.adb_controller.get_device_screen_picture())
+        self.controller.click(point_x, point_y)
+
+    def _retry_connection(self):
+        """
+        重新尝试连接
+        """
+        point_x = self.device_config['confirm_retry_connection_x'] - random.uniform(
+            self.device_config['confirm_retry_connection_x_prefix_start'],
+            self.device_config['confirm_retry_connection_x_prefix_end'])
+        point_y = self.device_config['confirm_retry_connection_y'] + random.uniform(
+            self.device_config['confirm_retry_connection_y_prefix_start'],
+            self.device_config['confirm_retry_connection_y_prefix_end'])
         point_x, point_y = self._compute_new_point(
             point_x, point_y, self.device_config['screen_resolution'], self.target_resolution)
         point_x = int(point_x)
@@ -454,7 +481,7 @@ if __name__ == '__main__':
 
     if args.fallback:
         logging.warning(f"receive fallback command:{args.fallback}, recorded")
-    auto_fighter = ArknightsAutoFighter(fight_times=args.times, controller=controller.ADBController(),
+    auto_fighter = ArknightsAutoFighter(fight_times=args.times, controller=ADBController.ADBController(),
                                         allow_use_medicine=args.medicine)
     try:
         result = auto_fighter.auto_fight()

@@ -28,17 +28,17 @@ class ADBController(Controller):
         output, error = self.exec([self.adb_path, "kill-server"])
         self.logger.debug(f"kill server, result: {output}, stderr: {error}")
         output, error = self.exec([self.adb_path, "start-server"])
-        # self.logger.debug(f"start server, result: {output}, stderr {error}")
-        # output, error = self.exec([self.adb_path, "connect", "127.0.0.1:7555"])
-        # self.logger.debug(f"connect to device, result: {output}, stderr {error}")
-
-        output, error = self.exec([self.adb_path, "connect", "127.0.0.1:5555"])
+        self.logger.debug(f"start server, result: {output}, stderr {error}")
+        output, error = self.exec([self.adb_path, "connect", "127.0.0.1:6414"])
         self.logger.debug(f"connect to device, result: {output}, stderr {error}")
+
+        # output, error = self.exec([self.adb_path, "connect", "127.0.0.1:5555"])
+        # self.logger.debug(f"connect to device, result: {output}, stderr {error}")
 
         # self.adb_prefix = ["-s", "127.0.0.1:62025"]
         # self.adb_prefix = ["-s", "127.0.0.1:7555"]
-        self.adb_prefix = ["-s", "127.0.0.1:5555"]
-        # self.adb_prefix = ["-s", "emulator-5554"] # prefix parameters
+        # self.adb_prefix = ["-s", "127.0.0.1:5555"]
+        self.adb_prefix = ["-s", "127.0.0.1:6414"]  # prefix parameters
         # self.adb_prefix = []
         self.wait_for_device()
 
