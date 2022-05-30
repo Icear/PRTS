@@ -9,8 +9,8 @@ import time
 import cv2 as cv
 import numpy
 
-from controller import *
 from statuschecker.TraditionalStatusChecker import TraditionalStatusChecker
+from utils.controller import *
 
 
 class ArknightsAutoFighter:

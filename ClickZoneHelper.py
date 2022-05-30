@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy
 
-from controller import *
+from utils.controller import *
 
 """
 用于辅助获取点击区域

@@ -4,7 +4,7 @@ import re
 import signal
 import subprocess
 
-from controller.Controller import Controller
+from utils.controller.Controller import Controller
 
 
 def exec_run(command):

@@ -2,7 +2,7 @@ import logging
 
 import win32gui
 
-from controller.Controller import Controller
+from utils.controller.Controller import Controller
 
 
 class WindowsAPIController(Controller):
