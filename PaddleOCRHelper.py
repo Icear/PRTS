@@ -6,7 +6,7 @@ import cv2 as cv
 import numpy as np
 from paddleocr import PaddleOCR
 
-from controller.ADBController import ADBController
+from utils.controller.ADBController import ADBController
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
@@ -14,15 +14,8 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 logging.basicConfig(level=logging.DEBUG,
                     format=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
                     datefmt='%Y/%m/%d %I:%M:%S %p',
-                    filename=os.path.join(os.getcwd(), 'log', 'ArknightsAutoFighter.log')
+                    stream=sys.stdout
                     )
-# 设置额外 handle 输出至 console，info 级别
-consoleLog = logging.StreamHandler(stream=sys.stdout)
-consoleLog.setLevel(logging.INFO)
-formatter = logging.Formatter(fmt=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
-                              datefmt='%Y/%m/%d %I:%M:%S %p')
-consoleLog.setFormatter(fmt=formatter)
-logging.getLogger().addHandler(consoleLog)
 
 logging.info("start initializing")
 

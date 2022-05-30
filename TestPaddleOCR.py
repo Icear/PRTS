@@ -6,7 +6,7 @@ import cv2 as cv
 import numpy as np
 from paddleocr import PaddleOCR
 
-from controller.ADBController import ADBController
+from utils.controller.ADBController import ADBController
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
