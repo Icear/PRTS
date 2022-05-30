@@ -1,15 +1,19 @@
+import logging
+
 _context_dict = {}
 _callback_dict = {}
+logger = logging.getLogger('Context')
 
 
-def _init():  # 初始化
-    global _context_dict, _callback_dict
-    _context_dict = {}
-    _callback_dict = {}
+# def _init():  # 初始化
+#     global _context_dict, _callback_dict
+#     _context_dict = {}
+#     _callback_dict = {}
 
 
 def set_value(key, value):
     """ 定义一个全局变量 """
+    logger.debug(f'update context key {key} with value {value}')
     if key in _callback_dict.keys():
         # 调用callback
         _callback_dict[key](key, value)
@@ -27,4 +31,5 @@ def get_value(key, default_value=None):
 def register_value_change_callback(target_key, callback):
     """ 注册某个key的变化回调函数，当该key的数据发生变化时调用此callback, 调用格式为callback(key, new_value)"""
     global _callback_dict
+    logger.debug(f'register callback for key {target_key}')
     _callback_dict[target_key] = callback
