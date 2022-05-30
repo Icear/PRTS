@@ -10,7 +10,7 @@ import cv2 as cv
 import numpy
 
 from statuschecker.TraditionalStatusChecker import TraditionalStatusChecker
-from utils.controller import *
+from utils.controller import ADBController
 
 
 class ArknightsAutoFighter:
