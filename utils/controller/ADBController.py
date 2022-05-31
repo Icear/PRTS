@@ -29,7 +29,7 @@ class ADBController(Controller):
         self.logger.debug(f"kill server, result: {output}, stderr: {error}")
         output, error = self.exec([self.adb_path, "start-server"])
         self.logger.debug(f"start server, result: {output}, stderr {error}")
-        output, error = self.exec([self.adb_path, "connect", "127.0.0.1:6414"])
+        output, error = self.exec([self.adb_path, "connect", "127.0.0.1:3847"])
         self.logger.debug(f"connect to device, result: {output}, stderr {error}")
 
         # output, error = self.exec([self.adb_path, "connect", "127.0.0.1:5555"])
@@ -38,16 +38,16 @@ class ADBController(Controller):
         # self.adb_prefix = ["-s", "127.0.0.1:62025"]
         # self.adb_prefix = ["-s", "127.0.0.1:7555"]
         # self.adb_prefix = ["-s", "127.0.0.1:5555"]
-        self.adb_prefix = ["-s", "127.0.0.1:6414"]  # prefix parameters
+        self.adb_prefix = ["-s", "127.0.0.1:3847"]  # prefix parametersw
         # self.adb_prefix = []
         self.wait_for_device()
 
     def get_device_screen_picture(self):
-        output, error = self.exec([self.adb_path] + self.adb_prefix + ["exec-out", "screencap", "-p"])
+        command_n = [self.adb_path] + self.adb_prefix + ["exec-out", "screencap", "-p"]
+        output, error = exec_run(command=command_n)
         if error != '':
             self.logger.error(f"command get_device_screen_picture error: {error}")
             exit(-1)
-        self.logger.debug(f"get screen pic, stderr: {error}")
         return output
 
     def get_device_resolution(self) -> (int, int):
