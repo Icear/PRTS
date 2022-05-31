@@ -1,7 +1,10 @@
+import logging
+import sys
+
 import cv2 as cv
 import numpy
 
-from utils.controller import *
+from utils.controller import ADBController
 
 """
 用于辅助获取点击区域
@@ -13,8 +16,7 @@ start_y = 0
 end_x = 0
 end_y = 0
 
-adb = ADBController.ADBController()
-adb.wait_for_device()
+
 
 
 def cut(event, x, y, flag, param):
@@ -44,5 +46,12 @@ def generate_click_zone():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO,
+                        format=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
+                        datefmt='%Y/%m/%d %I:%M:%S %p',
+                        stream=sys.stdout
+                        )
+    adb = ADBController.ADBController()
+    adb.wait_for_device()
     while True:
         generate_click_zone()

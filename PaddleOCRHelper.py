@@ -11,7 +11,7 @@ from utils.controller.ADBController import ADBController
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 # 设置写入 DEBUG 级 log 到文件
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=logging.INFO,
                     format=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
                     datefmt='%Y/%m/%d %I:%M:%S %p',
                     stream=sys.stdout
