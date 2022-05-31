@@ -1,4 +1,5 @@
 import logging
+import os
 
 import cv2 as cv
 import numpy
@@ -9,6 +10,8 @@ import utils.ocr
 from context import Context
 
 ocr = PaddleOCR(use_angle_cls=False, lang="ch")  # 初始化模型
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+
 logger = logging.getLogger('PaddleOCR')
 
 
