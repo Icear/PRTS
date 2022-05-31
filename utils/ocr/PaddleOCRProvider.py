@@ -9,8 +9,8 @@ import utils.controller
 import utils.ocr
 from context import Context
 
-ocr = PaddleOCR(use_angle_cls=False, lang="ch")  # 初始化模型
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+ocr = PaddleOCR(use_angle_cls=False, lang="ch")  # 初始化模型
 
 logger = logging.getLogger('PaddleOCR')
 
