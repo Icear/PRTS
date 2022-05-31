@@ -49,5 +49,6 @@ while True:
             pt2=(int(box[2][0]), int(box[2][1])),
             color=(255, 0, 0), thickness=3
         )
+    cv.namedWindow('image_original', cv.WINDOW_NORMAL | cv.WINDOW_KEEPRATIO)
     cv.imshow('image_original', cv_image)
     cv.waitKey(0)
