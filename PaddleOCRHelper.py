@@ -43,10 +43,11 @@ while True:
     scores = [line[1][1] for line in result]
     # im_show = draw_ocr(image, boxes, txts, scores, font_path='./fonts/simfang.ttf')
     for index, box in enumerate(boxes):
-        logging.info((box[0][0], box[0][1]))
-        logging.info((box[2][0], box[2][1]))
-        logging.info(txts[index])
-        cv.rectangle(img=cv_image, pt1=(int(box[0][0]), int(box[0][1])), pt2=(int(box[2][0]), int(box[2][1])),
-                     color=(255, 0, 0), thickness=3)
+        logging.info(f"{txts[index]}: {box[0][0]}, {box[0][1]}, {box[2][0]}, {box[2][1]}")
+        cv.rectangle(
+            img=cv_image, pt1=(int(box[0][0]), int(box[0][1])),
+            pt2=(int(box[2][0]), int(box[2][1])),
+            color=(255, 0, 0), thickness=3
+        )
     cv.imshow('image_original', cv_image)
     cv.waitKey(0)
