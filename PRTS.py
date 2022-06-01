@@ -19,6 +19,7 @@ import utils.controller
 import utils.controller.ADBController
 import utils.ocr.PaddleOCRProvider
 from context import Context
+from utils.click.ScrennClick import ScreenResolution
 
 handler_list = []
 object_list = []
@@ -28,9 +29,14 @@ standby_mode_duration = 60 * 10
 
 def initialize_global_tools():
     """初始化全局工具"""
+    # ADBController
     adb_controller = utils.controller.ADBController.ADBController()
     adb_controller.wait_for_device()
     Context.set_value(utils.controller.CONTEXT_KEY_CONTROLLER, adb_controller)
+
+    # 获取设备分辨率
+    x, y = adb_controller.get_device_resolution()
+    Context.set_value(utils.click.CONTEXT_KEY_CLICK_HELPER, utils.click.ScrennClick.ClickHelper(ScreenResolution(x, y)))
 
 
 def initialize_handlers():

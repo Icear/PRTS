@@ -14,7 +14,6 @@ class AutoBattleHandler:
 
     def __init__(self):
         self.auto_battle = ArknightsAutoBattle(
-            controller=Context.get_value(utils.controller.CONTEXT_KEY_CONTROLLER),
             allow_use_medicine=False
         )
         self.last_trigger_time = time.time() - 135 * 5 * 60 - 100  # 用于记录上一次触发的时间
@@ -50,16 +49,14 @@ class ArknightsAutoBattle:
         def __init__(self, *args: object) -> None:
             super().__init__(*args)
 
-    def __init__(self, controller, allow_use_medicine=False):
+    def __init__(self, allow_use_medicine=False):
         """
         :param allow_use_medicine:  是否允许使用回体力药剂
         """
         self.logger = logging.getLogger('ArknightsAutoFighter')
         # 连接并初始化设备
-        self.controller = controller
-        # 获取设备分辨率
-        x, y = self.controller.get_device_resolution()
-        self.click_helper = utils.click.ScrennClick.ClickHelper(ScreenResolution(x, y))
+        self.controller = Context.get_value(utils.controller.CONTEXT_KEY_CONTROLLER)
+        self.click_helper = Context.get_value(utils.click.CONTEXT_KEY_CLICK_HELPER)
         # 初始化统计变量
         self.fight_finished = False
         self.fight_count = 1
