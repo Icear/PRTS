@@ -1,5 +1,6 @@
 import logging
 import random
+import time
 
 import utils.controller
 from context import Context
@@ -16,9 +17,12 @@ class AutoBattleHandler:
             controller=Context.get_value(utils.controller.CONTEXT_KEY_CONTROLLER),
             allow_use_medicine=False
         )
+        self.last_trigger_time = time.time() - 135 * 5 * 60 - 100  # 用于记录上一次触发的时间
 
     def can_handle(self) -> bool:
-        # 如果上次触发时间到现在体力不满，则暂时不触发
+        # 如果上次触发时间到现在体力不满足一半，则暂时不触发
+        if time.time() - self.last_trigger_time < 65 * 5 * 60:
+            return False
         return self.auto_battle.try_detect_scene()
         # boxes, texts, scores = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
         # if '仓库' in texts and '任务' in texts and '采购中心' in texts:
@@ -28,6 +32,7 @@ class AutoBattleHandler:
 
     def do_logic(self):
         self.auto_battle.auto_fight()
+        self.last_trigger_time = time.time()  # 更新上次触发时间
 
 
 device_config = {
