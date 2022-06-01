@@ -92,8 +92,6 @@ class ArknightsAutoBattle:
         # 退出情况有以下几种
         #   - 理智耗尽退出（正常退出）
         #   - 无法识别状态退出（异常退出）
-        self.logger.warning(
-            f"start the {self.fight_count} fights")
         try:
             self._auto_fight()
         except ArknightsAutoBattle.SanityUsedUpException:
