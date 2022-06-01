@@ -94,7 +94,9 @@ class ArknightsAutoBattle:
         except ArknightsAutoBattle.SanityUsedUpException:
             self.logger.info(f'sanity used up, run exit progress')
             self._return_to_main_screen()
-
+        except ArknightsAutoBattle.LogicFinishedException:
+            self.logger.info(f'sanity used up, run exit progress')
+            self._return_to_main_screen()
         except ArknightsAutoBattle.StatusUnrecognizedException as status_unrecognized_exception:
             self.logger.exception(status_unrecognized_exception)
             raise status_unrecognized_exception
@@ -140,13 +142,11 @@ class ArknightsAutoBattle:
             utils.sleep(random.uniform(3, 9))
             request_ocr_result()
             boxes, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
-            if '终端' not in texts or '基建' not in texts or '干员' not in texts or '首页' not in texts or '档案' not in texts:
-                # 继续点击
+            if '终端' in texts and '基建' in texts and '干员' in texts and '首页' in texts and '档案' in texts:
+                # 任务完成跳出
                 break
         if retry_count >= 4:
             raise self.StatusUnrecognizedException()
-        retry_count = 0
-
         boxes, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
         # 点击首页按钮
         index = texts.index('首页')
