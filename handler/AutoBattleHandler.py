@@ -67,9 +67,9 @@ class ArknightsAutoBattle:
         # 先检索_status_，产生key，然后检查handler函数
         for function_name in filter(lambda field: field.startswith('_status_'), dir(self)):
             actual_status_name = function_name[len('_status_'):]
-            if hasattr(self, '_handler_' + actual_status_name):
+            if hasattr(self, '_handle_' + actual_status_name):
                 self.status_handler_map[(getattr(self, function_name))] = getattr(self,
-                                                                                  '_handler_' + actual_status_name)
+                                                                                  '_handle_' + actual_status_name)
             else:
                 self.status_handler_map[(getattr(self, function_name))] = self._default_status_handler
         self.logger.info(f"total read {len(self.status_handler_map)} handler")
@@ -166,7 +166,7 @@ class ArknightsAutoBattle:
             return False
         return True
 
-    def _handler_main_screen(self):
+    def _handle_main_screen(self):
         """
         主界面，进入终端
         """
@@ -189,7 +189,7 @@ class ArknightsAutoBattle:
             return False
         return True
 
-    def _handler_terminal(self):
+    def _handle_terminal(self):
         """
         终端界面， 进入上一次战斗位置
         """
@@ -216,7 +216,7 @@ class ArknightsAutoBattle:
             return False
         return True
 
-    def _handler_level_selection(self):
+    def _handle_level_selection(self):
         """
         关卡选择界面, 进入队伍选择界面
         """
@@ -241,7 +241,7 @@ class ArknightsAutoBattle:
             return False
         return True
 
-    def _handler_team_assemble(self):
+    def _handle_team_assemble(self):
         """
         队伍选择界面， 进入游戏界面
         """
@@ -267,7 +267,7 @@ class ArknightsAutoBattle:
         return True
 
     @staticmethod
-    def _handler_battle():
+    def _handle_battle():
         """
         战斗界面，等待
         """
@@ -283,7 +283,7 @@ class ArknightsAutoBattle:
             return False
         return True
 
-    def _handler_level_settlement(self):
+    def _handle_level_settlement(self):
         """
         结算界面， 离开结算界面
         """
@@ -309,7 +309,7 @@ class ArknightsAutoBattle:
             return False
         return True
 
-    def _handler_sanity_restore_medicine(self):
+    def _handle_sanity_restore_medicine(self):
         """
         选择是否使用药剂的界面，确认使用恢复药剂
         """
