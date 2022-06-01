@@ -2,6 +2,7 @@ import logging
 import random
 import time
 
+import utils
 import utils.controller
 from context import Context
 from utils.click.ScrennClick import ClickZone, ScreenResolution
@@ -38,10 +39,6 @@ class ArknightsAutoBattle:
     """ 不需要次数定时，一直刷，体力药保留开关 """
 
     class SanityUsedUpException(Exception):
-        def __init__(self, *args: object) -> None:
-            super().__init__(*args)
-
-    class StatusUnrecognizedException(Exception):
         def __init__(self, *args: object) -> None:
             super().__init__(*args)
 
@@ -97,7 +94,7 @@ class ArknightsAutoBattle:
         except ArknightsAutoBattle.LogicFinishedException:
             self.logger.info(f'sanity used up, run exit progress')
             self._return_to_main_screen()
-        except ArknightsAutoBattle.StatusUnrecognizedException as status_unrecognized_exception:
+        except utils.StatusUnrecognizedException as status_unrecognized_exception:
             self.logger.exception(status_unrecognized_exception)
             raise status_unrecognized_exception
             # return False, status_unrecognized_exception
@@ -125,7 +122,7 @@ class ArknightsAutoBattle:
                     utils.sleep(10)
                 else:
                     # 超过2次，走异常脱离
-                    raise self.StatusUnrecognizedException()
+                    raise utils.StatusUnrecognizedException()
 
     def _return_to_main_screen(self):
 
@@ -146,7 +143,7 @@ class ArknightsAutoBattle:
                 # 任务完成跳出
                 break
         if retry_count >= 4:
-            raise self.StatusUnrecognizedException()
+            raise utils.StatusUnrecognizedException()
         boxes, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
         # 点击首页按钮
         index = texts.index('首页')
