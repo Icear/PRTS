@@ -35,6 +35,17 @@ class AutoBattleHandler:
         self.last_trigger_time = time.time()  # 更新上次触发时间
 
 
+def _handle_terminal():
+    """
+    终端界面， 进入上一次战斗位置
+    """
+
+    utils.click.click_from_context('前往上一次作战')
+    utils.sleep(random.uniform(3, 5))  # 等待游戏响应
+
+    return True
+
+
 class ArknightsAutoBattle:
     """ 不需要次数定时，一直刷，体力药保留开关 """
 
@@ -144,15 +155,7 @@ class ArknightsAutoBattle:
                 break
         if retry_count >= 4:
             raise utils.StatusUnrecognizedException()
-        boxes, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
-        # 点击首页按钮
-        index = texts.index('首页')
-        point_x, point_y = self.click_helper.generate_target_click(
-            self.click_helper.current_screen_resolution.create_click_zone(
-                boxes[index][0][0], boxes[index][0][1], boxes[index][2][0], boxes[index][2][1]
-            )
-        )
-        self.controller.click(point_x, point_y)  # 点击时加上随机偏移量
+        utils.click.click_from_context('首页')
         utils.sleep(random.uniform(6, 10))  # 等待游戏响应
 
     @staticmethod
@@ -163,19 +166,12 @@ class ArknightsAutoBattle:
             return False
         return True
 
-    def _handle_main_screen(self):
+    @staticmethod
+    def _handle_main_screen():
         """
         主界面，进入终端
         """
-        boxes, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
-        # 点击终端按钮
-        index = texts.index('终端')
-        point_x, point_y = self.click_helper.generate_target_click(
-            self.click_helper.current_screen_resolution.create_click_zone(
-                boxes[index][0][0], boxes[index][0][1], boxes[index][2][0], boxes[index][2][1]
-            )
-        )
-        self.controller.click(point_x, point_y)  # 点击时加上随机偏移量
+        utils.click.click_from_context('终端')
         utils.sleep(random.uniform(1, 5))  # 等待游戏响应
 
     @staticmethod
@@ -186,25 +182,6 @@ class ArknightsAutoBattle:
             return False
         return True
 
-    def _handle_terminal(self):
-        """
-        终端界面， 进入上一次战斗位置
-        """
-
-        boxes, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
-
-        # 点击前往上一次作战
-        index = texts.index('前往上一次作战')
-        point_x, point_y = self.click_helper.generate_target_click(
-            self.click_helper.current_screen_resolution.create_click_zone(
-                boxes[index][0][0], boxes[index][0][1], boxes[index][2][0], boxes[index][2][1]
-            )
-        )
-        self.controller.click(point_x, point_y)  # 点击时加上随机偏移量
-        utils.sleep(random.uniform(3, 5))  # 等待游戏响应
-
-        return True
-
     @staticmethod
     def _status_level_selection() -> bool:
         # 检查状态是否正确
@@ -213,21 +190,12 @@ class ArknightsAutoBattle:
             return False
         return True
 
-    def _handle_level_selection(self):
+    @staticmethod
+    def _handle_level_selection():
         """
         关卡选择界面, 进入队伍选择界面
         """
-        boxes, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
-
-        # 执行逻辑
-
-        index = texts.index('开始行动')
-        point_x, point_y = self.click_helper.generate_target_click(
-            self.click_helper.current_screen_resolution.create_click_zone(
-                boxes[index][0][0], boxes[index][0][1], boxes[index][2][0], boxes[index][2][1]
-            )
-        )
-        self.controller.click(point_x, point_y)  # 点击时加上随机偏移量
+        utils.click.click_from_context('开始行动')
         utils.sleep(random.uniform(5, 9))  # 等待游戏响应
 
     @staticmethod
@@ -238,21 +206,13 @@ class ArknightsAutoBattle:
             return False
         return True
 
-    def _handle_team_assemble(self):
+    @staticmethod
+    def _handle_team_assemble():
         """
         队伍选择界面， 进入游戏界面
         """
 
-        boxes, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
-
-        # 执行逻辑
-        index = texts.index('开始')
-        point_x, point_y = self.click_helper.generate_target_click(
-            self.click_helper.current_screen_resolution.create_click_zone(
-                boxes[index][0][0], boxes[index][0][1], boxes[index][2][0], boxes[index][2][1]
-            )
-        )
-        self.controller.click(point_x, point_y)  # 点击时加上随机偏移量
+        utils.click.click_from_context('开始')
         utils.sleep(random.uniform(5, 9))  # 等待游戏响应
 
     @staticmethod
@@ -284,18 +244,10 @@ class ArknightsAutoBattle:
         """
         结算界面， 离开结算界面
         """
-        boxes, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
 
         # 执行逻辑
         self.fight_count += 1
-
-        index = texts.index('行动结束')
-        point_x, point_y = self.click_helper.generate_target_click(
-            self.click_helper.current_screen_resolution.create_click_zone(
-                boxes[index][0][0], boxes[index][0][1], boxes[index][2][0], boxes[index][2][1]
-            )
-        )
-        self.controller.click(point_x, point_y)  # 点击时加上随机偏移量
+        utils.click.click_from_context('行动结束')
         utils.sleep(random.uniform(5, 9))  # 等待游戏响应
 
     @staticmethod

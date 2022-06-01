@@ -1,6 +1,8 @@
 import logging
 import time
 
+__all__ = ['click', 'controller', 'ocr']
+
 
 def sleep(fake_time):
     logging.debug(f"schedule sleep for {fake_time} seconds")
