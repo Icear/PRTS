@@ -74,10 +74,10 @@ def start_rules():
                 continue
             # 请求获取权限的则读取数据
             flag_module_finished = False
-            logging.info(f"module {type(handler)} takes control")
+            logging.info(f"module {handler.__class__.__qualname__} takes control")
             handler.do_logic()
             utils.ocr.PaddleOCRProvider.request_ocr_result()  # 请求刷新OCR结果
-            logging.info(f"module {type(handler)} released control")
+            logging.info(f"module {handler.__class__.__qualname__} released control")
         if flag_module_finished:
             # 所有模块都放弃了处理，进入待机模式，10分钟重新触发一次
             logging.info(f"enter standby mode, waiting for next cycle, sleep {standby_mode_duration}s")

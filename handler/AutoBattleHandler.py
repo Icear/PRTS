@@ -83,7 +83,7 @@ class ArknightsAutoBattle:
     def try_detect_scene(self) -> bool:
         for status_checker in self.status_handler_map:
             if status_checker():
-                self.logger.info(f"detect status {status_checker}")
+                self.logger.info(f"detect status {status_checker.__name__[len('_status_'):]}")
                 return True
         return False
 
@@ -116,7 +116,7 @@ class ArknightsAutoBattle:
             flag_status_checked = False
             for status_checker, status_handler in self.status_handler_map.items():
                 if status_checker():
-                    self.logger.info(f"start handler {status_handler}")
+                    self.logger.info(f"start handler {status_handler.__name__[len('_handler_'):]}")
                     status_handler()
                     flag_status_checked = True
                     count_unknown_status = 0  # 重置未知状态计数
