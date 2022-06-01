@@ -4,11 +4,12 @@ import sys
 
 import cv2 as cv
 import numpy as np
-from paddleocr import PaddleOCR
+from paddleocr import PaddleOCR, paddleocr
 
 from utils.controller.ADBController import ADBController
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+paddleocr.logging.disable(logging.DEBUG)
 
 # 设置写入 DEBUG 级 log 到文件
 logging.basicConfig(level=logging.INFO,
