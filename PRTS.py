@@ -12,6 +12,7 @@ handler:
 """
 import logging
 import os
+import sys
 import time
 
 import utils.controller
@@ -37,8 +38,9 @@ def initialize_handlers():
     global handler_list, object_list
     # 扫描handler的模块并导入
     handler = __import__('handler')
-    submodule_names = map(lambda file: os.path.splitext(file)[0],
-                          filter(lambda file: not file.startswith('_'), os.listdir('handler')))
+    submodule_names = list(map(lambda file: os.path.splitext(file)[0],
+                               filter(lambda file: not file.startswith('_'), os.listdir('handler'))
+                               ))
     list(map(
         lambda module: __import__('handler.' + module),
         submodule_names
@@ -46,7 +48,7 @@ def initialize_handlers():
     for submodule_name in submodule_names:
         # 获取对应的class，构造出对象使其初始化，对于handler模块加入handler list
         submodule = getattr(handler, submodule_name)
-        class_list = list(filter(lambda field: not field.startswith('_'), dir(submodule)))
+        class_list = list(filter(lambda field: not field.startswith('_') and field.endswith('Handler'), dir(submodule)))
 
         for class_name in class_list:
             class_type = getattr(submodule, class_name)
@@ -63,6 +65,7 @@ def initialize_handlers():
 def start_rules():
     # TODO 调用一次OCR，并且调用每个模块进行处理
     # 不断轮询所有模块，当can_handle都返回false时开始进入待机模式
+    global handler_list, object_list
     while True:
         flag_module_finished = True
         utils.ocr.PaddleOCRProvider.request_ocr_result()  # 请求刷新OCR结果
@@ -88,4 +91,9 @@ def main():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO,
+                        format=' %(asctime)s %(levelname)s: %(module)s: %(message)s',
+                        datefmt='%Y/%m/%d %I:%M:%S %p',
+                        stream=sys.stdout
+                        )
     main()
