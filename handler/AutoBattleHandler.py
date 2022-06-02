@@ -161,10 +161,7 @@ class ArknightsAutoBattle:
     @staticmethod
     def _status_main_screen() -> bool:
         # 检查状态是否正确
-        _, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
-        if '终端' not in texts or '仓库' not in texts or '任务' not in texts or '采购中心' not in texts:
-            return False
-        return True
+        return utils.check_keywords_from_context(['终端', '仓库', '任务', '采购中心'])
 
     @staticmethod
     def _handle_main_screen():
@@ -176,19 +173,15 @@ class ArknightsAutoBattle:
 
     @staticmethod
     def _status_terminal() -> bool:
-        # 检查状态
-        _, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
-        if '前往上一次作战' not in texts or '终端' not in texts:
-            return False
-        return True
+        # 检查状态是否正确
+        return utils.check_keywords_from_context(['前往上一次作战', '终端'])
+
+    # TODO 前往上一次作战的地方没做完handle
 
     @staticmethod
     def _status_level_selection() -> bool:
         # 检查状态是否正确
-        _, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
-        if '开始行动' not in texts or '代理指挥' not in texts:
-            return False
-        return True
+        return utils.check_keywords_from_context(['开始行动', '代理指挥'])
 
     @staticmethod
     def _handle_level_selection():
@@ -201,10 +194,7 @@ class ArknightsAutoBattle:
     @staticmethod
     def _status_team_assemble() -> bool:
         # 检查状态是否正确
-        _, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
-        if '开始' not in texts or '行动' not in texts or '快捷编队' not in texts:
-            return False
-        return True
+        return utils.check_keywords_from_context(['开始', '行动', '快捷编队'])
 
     @staticmethod
     def _handle_team_assemble():
@@ -218,10 +208,7 @@ class ArknightsAutoBattle:
     @staticmethod
     def _status_battle() -> bool:
         # 检查状态是否正确
-        _, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
-        if '接管作战' not in texts:
-            return False
-        return True
+        return utils.check_keywords_from_context(['接管作战'])
 
     @staticmethod
     def _handle_battle():
@@ -235,10 +222,7 @@ class ArknightsAutoBattle:
     @staticmethod
     def _status_level_settlement() -> bool:
         # 检查状态是否正确
-        _, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
-        if '行动结束' not in texts:
-            return False
-        return True
+        return utils.check_keywords_from_context(['行动结束'])
 
     def _handle_level_settlement(self):
         """
@@ -253,10 +237,7 @@ class ArknightsAutoBattle:
     @staticmethod
     def _status_sanity_restore_medicine() -> bool:
         # 检查状态是否正确
-        _, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
-        if '使用药剂恢复' not in texts:
-            return False
-        return True
+        return utils.check_keywords_from_context(['使用药剂恢复'])
 
     def _handle_sanity_restore_medicine(self):
         """
