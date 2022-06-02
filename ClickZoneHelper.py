@@ -17,8 +17,6 @@ end_x = 0
 end_y = 0
 
 
-
-
 def cut(event, x, y, flag, param):
     global flags, start_x, start_y, end_x, end_y
     if event == cv.EVENT_LBUTTONDOWN:
@@ -29,6 +27,7 @@ def cut(event, x, y, flag, param):
         else:
             end_x = x
             end_y = y
+            flags = True
 
 
 def generate_click_zone():
