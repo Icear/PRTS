@@ -5,7 +5,7 @@ import time
 import utils
 import utils.controller
 from context import Context
-from utils.click.ScrennClick import ClickZone, ScreenResolution
+from utils.click.ScrennClick import ScreenResolution
 from utils.ocr.PaddleOCRProvider import request_ocr_result
 
 logger = logging.getLogger('AutoBattleHandler')
@@ -46,9 +46,6 @@ class ArknightsAutoBattle:
         :param allow_use_medicine:  是否允许使用回体力药剂
         """
         self.logger = logging.getLogger('ArknightsAutoFighter')
-        # 连接并初始化设备
-        self.controller = Context.get_value(utils.controller.CONTEXT_KEY_CONTROLLER)
-        self.click_helper = Context.get_value(utils.click.CONTEXT_KEY_CLICK_HELPER)
         # 初始化统计变量
         self.fight_finished = False
         self.fight_count = 1
@@ -80,41 +77,17 @@ class ArknightsAutoBattle:
 
     def _auto_fight(self):
         """逻辑循环入口，通过Exception终结逻辑"""
-        # 调用status_checker确定当前状态，然后根据状态执行动作，不再为每个关卡指定时间定时
-        count_unknown_status = 0
-        while True:
-            request_ocr_result()  # 请求OCR
-            # 根据配置列表，挨个key调用函数，返回True则调用value对应的列表
-            # 没有状态匹配时对应Unknown状态，触发两次等待，如果还是不行就抛异常
-            flag_status_checked = False
-            for status_checker, status_handler in self.status_handler_map.items():
-                if status_checker():
-                    self.logger.info(f"start handler {status_handler.__name__[len('_handler_'):]}")
-                    status_handler()
-                    flag_status_checked = True
-                    count_unknown_status = 0  # 重置未知状态计数
-            if not flag_status_checked:
-                # 未匹配上状态，等待两次，间隔10秒
-                self.logger.info(f'no match status found ,waiting...')
-                if count_unknown_status <= 2:
-                    count_unknown_status += 1
-                    utils.sleep(10)
-                else:
-                    # 超过2次，走异常脱离
-                    raise utils.StatusUnrecognizedException()
+        utils.roll_status_and_checker(self, self.status_handler_map)
 
     def _return_to_main_screen(self):
-
         self.logger.info(f"return to main screen")
         # 循环尝试点击主页按钮，然后检查OCR结果，如果没有识别到点击后应该出现的菜单，那就再点几次
         retry_count = 0
         while retry_count < 4:
             retry_count += 1
-
-            point_x, point_y = self.click_helper.generate_target_click(ClickZone(
+            utils.click.click_from_context(
                 ScreenResolution(1920, 1080), 296, 31, 524, 85
-            ))
-            self.controller.click(point_x, point_y)
+            )
             utils.sleep(random.uniform(3, 9))
             request_ocr_result()
             boxes, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
@@ -123,7 +96,7 @@ class ArknightsAutoBattle:
                 break
         if retry_count >= 4:
             raise utils.StatusUnrecognizedException()
-        utils.click.click_from_context('首页')
+        utils.click.click_text_from_context('首页')
         utils.sleep(random.uniform(6, 10))  # 等待游戏响应
 
     @staticmethod
@@ -136,7 +109,7 @@ class ArknightsAutoBattle:
         """
         主界面，进入终端
         """
-        utils.click.click_from_context('终端')
+        utils.click.click_text_from_context('终端')
         utils.sleep(random.uniform(1, 5))  # 等待游戏响应
 
     @staticmethod
@@ -149,7 +122,7 @@ class ArknightsAutoBattle:
         """
         终端界面， 进入上一次战斗位置
         """
-        utils.click.click_from_context('前往上一次作战')
+        utils.click.click_text_from_context('前往上一次作战')
         utils.sleep(random.uniform(3, 5))  # 等待游戏响应
 
     @staticmethod
@@ -162,7 +135,7 @@ class ArknightsAutoBattle:
         """
         关卡选择界面, 进入队伍选择界面
         """
-        utils.click.click_from_context('开始行动')
+        utils.click.click_text_from_context('开始行动')
         utils.sleep(random.uniform(5, 9))  # 等待游戏响应
 
     @staticmethod
@@ -176,7 +149,7 @@ class ArknightsAutoBattle:
         队伍选择界面， 进入游戏界面
         """
 
-        utils.click.click_from_context('开始')
+        utils.click.click_text_from_context('开始')
         utils.sleep(random.uniform(5, 9))  # 等待游戏响应
 
     @staticmethod
@@ -205,7 +178,7 @@ class ArknightsAutoBattle:
 
         # 执行逻辑
         self.fight_count += 1
-        utils.click.click_from_context('行动结束')
+        utils.click.click_text_from_context('行动结束')
         utils.sleep(random.uniform(5, 9))  # 等待游戏响应
 
     @staticmethod
@@ -225,10 +198,7 @@ class ArknightsAutoBattle:
 
         self.logger.info('using medicine to restore sanity as intend')
 
-        point_x, point_y = self.click_helper.generate_target_click(ClickZone(
+        utils.click.click_from_context(
             ScreenResolution(1920, 980), 1509, 745, 1609, 805
-        ))
-
-        self.controller.click(point_x, point_y)
-
+        )
         utils.sleep(random.uniform(3, 4))  # 等待游戏响应
