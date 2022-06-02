@@ -24,18 +24,10 @@ class AutoBattleHandler:
         if time.time() - self.last_trigger_time < 65 * 5 * 60:
             return False
         return self.auto_battle.try_detect_scene()
-        # boxes, texts, scores = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
-        # if '仓库' in texts and '任务' in texts and '采购中心' in texts:
-        #     return True
-        # else:
-        #     return False
 
     def do_logic(self):
         self.auto_battle.auto_fight()
         self.last_trigger_time = time.time()  # 更新上次触发时间
-
-
-
 
 
 class ArknightsAutoBattle:
@@ -63,26 +55,10 @@ class ArknightsAutoBattle:
         self.allow_use_medicine = bool(allow_use_medicine)
 
         # 扫描当前类里的所有函数，保留'_'开头的内部函数，以_handler_开头的函数作为状态处理函数
-        self.status_handler_map = {}
-        # 先检索_status_，产生key，然后检查handler函数
-        for function_name in filter(lambda field: field.startswith('_status_'), dir(self)):
-            actual_status_name = function_name[len('_status_'):]
-            if hasattr(self, '_handle_' + actual_status_name):
-                self.status_handler_map[(getattr(self, function_name))] = getattr(self,
-                                                                                  '_handle_' + actual_status_name)
-            else:
-                self.status_handler_map[(getattr(self, function_name))] = self._default_status_handler
-        self.logger.info(f"total read {len(self.status_handler_map)} handler")
-
-    def _default_status_handler(self):
-        pass
+        self.status_handler_map = utils.generate_status_handler_map(self)
 
     def try_detect_scene(self) -> bool:
-        for status_checker in self.status_handler_map:
-            if status_checker():
-                self.logger.info(f"detect status {status_checker.__name__[len('_status_'):]}")
-                return True
-        return False
+        return utils.roll_status(self, self.status_handler_map)
 
     def auto_fight(self):
         # 循环调用auto_fight_once 来进行战斗
