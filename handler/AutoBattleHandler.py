@@ -35,15 +35,7 @@ class AutoBattleHandler:
         self.last_trigger_time = time.time()  # 更新上次触发时间
 
 
-def _handle_terminal():
-    """
-    终端界面， 进入上一次战斗位置
-    """
 
-    utils.click.click_from_context('前往上一次作战')
-    utils.sleep(random.uniform(3, 5))  # 等待游戏响应
-
-    return True
 
 
 class ArknightsAutoBattle:
@@ -176,7 +168,16 @@ class ArknightsAutoBattle:
         # 检查状态是否正确
         return utils.check_keywords_from_context(['前往上一次作战', '终端'])
 
-    # TODO 前往上一次作战的地方没做完handle
+    @staticmethod
+    def _handle_terminal():
+        """
+        终端界面， 进入上一次战斗位置
+        """
+
+        utils.click.click_from_context('前往上一次作战')
+        utils.sleep(random.uniform(3, 5))  # 等待游戏响应
+
+        return True
 
     @staticmethod
     def _status_level_selection() -> bool:
