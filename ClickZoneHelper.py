@@ -42,6 +42,7 @@ def generate_click_zone():
     print(f"start_y: {start_y}")
     print(f"end_x: {end_x}")
     print(f"end_y: {end_y}")
+    print(f"ScreenResolution({screen_length}, {screen_width}), {start_x}, {start_y}, {end_x}, {end_y}")
 
 
 if __name__ == '__main__':
@@ -52,5 +53,6 @@ if __name__ == '__main__':
                         )
     adb = ADBController.ADBController()
     adb.wait_for_device()
+    screen_length, screen_width = adb.get_device_resolution()
     while True:
         generate_click_zone()
