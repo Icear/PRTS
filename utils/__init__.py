@@ -10,17 +10,22 @@ from utils.ocr.PaddleOCRProvider import request_ocr_result
 logger = logging.getLogger('utils')
 
 
+class LogicFinishedException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class StatusUnrecognizedException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
 def sleep(fake_time):
     logging.debug(f"schedule sleep for {fake_time} seconds")
     logging.debug(f"start sleep: {time.ctime()}")
     # a = 1
     time.sleep(fake_time)
     logging.debug(f"end sleep: {time.ctime()}")
-
-
-class StatusUnrecognizedException(Exception):
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
 
 
 def check_keywords_from_context(keyword_list):
@@ -36,26 +41,29 @@ def roll_status_and_checker(handler, status_handler_map: dict):
     """遍历handler内的status与handle并调用"""
     # 调用status_checker确定当前状态，然后根据状态执行动作，不再为每个关卡指定时间定时
     count_unknown_status = 0
-    while True:
-        request_ocr_result()  # 请求OCR
-        # 根据配置列表，挨个key调用函数，返回True则调用value对应的列表
-        # 没有状态匹配时对应Unknown状态，触发两次等待，如果还是不行就抛异常
-        flag_status_checked = False
-        for status_checker, status_handler in status_handler_map.items():
-            if status_checker():
-                logger.info(f"start {type(handler)} handler {status_handler.__name__[len('_handler_'):]}")
-                status_handler()
-                flag_status_checked = True
-                count_unknown_status = 0  # 重置未知状态计数
-        if not flag_status_checked:
-            # 未匹配上状态，等待两次，间隔10秒
-            logger.info(f'no match status found ,waiting...')
-            if count_unknown_status <= 2:
-                count_unknown_status += 1
-                utils.sleep(10)
-            else:
-                # 超过2次，走异常脱离
-                raise utils.StatusUnrecognizedException()
+    try:
+        while True:
+            request_ocr_result()  # 请求OCR
+            # 根据配置列表，挨个key调用函数，返回True则调用value对应的列表
+            # 没有状态匹配时对应Unknown状态，触发两次等待，如果还是不行就抛异常
+            flag_status_checked = False
+            for status_checker, status_handler in status_handler_map.items():
+                if status_checker():
+                    logger.info(f"start {type(handler)} handler {status_handler.__name__[len('_handler_'):]}")
+                    status_handler()
+                    flag_status_checked = True
+                    count_unknown_status = 0  # 重置未知状态计数
+            if not flag_status_checked:
+                # 未匹配上状态，等待两次，间隔10秒
+                logger.info(f'no match status found ,waiting...')
+                if count_unknown_status <= 2:
+                    count_unknown_status += 1
+                    utils.sleep(10)
+                else:
+                    # 超过2次，走异常脱离
+                    raise utils.StatusUnrecognizedException()
+    except utils.LogicFinishedException:
+        logger.debug(f'handler {type(handler)} reports progress finished')
 
 
 def roll_status(handler, status_handler_map: dict) -> bool:
@@ -85,4 +93,3 @@ def generate_status_handler_map(handler) -> dict:
 
 def _default_status_handler():
     pass
-

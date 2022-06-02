@@ -37,10 +37,6 @@ class ArknightsAutoBattle:
         def __init__(self, *args: object) -> None:
             super().__init__(*args)
 
-    class LogicFinishedException(Exception):
-        def __init__(self, *args: object) -> None:
-            super().__init__(*args)
-
     def __init__(self, allow_use_medicine=False):
         """
         :param allow_use_medicine:  是否允许使用回体力药剂
@@ -64,10 +60,6 @@ class ArknightsAutoBattle:
         #   - 无法识别状态退出（异常退出）
         try:
             self._auto_fight()
-        except ArknightsAutoBattle.SanityUsedUpException:
-            self.logger.info(f'sanity used up, run exit progress')
-            self._return_to_main_screen()
-        except ArknightsAutoBattle.LogicFinishedException:
             self.logger.info(f'sanity used up, run exit progress')
             self._return_to_main_screen()
         except utils.StatusUnrecognizedException as status_unrecognized_exception:
@@ -194,7 +186,7 @@ class ArknightsAutoBattle:
         # 执行逻辑
         if not self.allow_use_medicine:
             # 关卡结算，通过逻辑结束异常跳出
-            raise self.LogicFinishedException()
+            raise utils.LogicFinishedException()
 
         self.logger.info('using medicine to restore sanity as intend')
 
