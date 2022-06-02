@@ -173,11 +173,8 @@ class ArknightsAutoBattle:
         """
         终端界面， 进入上一次战斗位置
         """
-
         utils.click.click_from_context('前往上一次作战')
         utils.sleep(random.uniform(3, 5))  # 等待游戏响应
-
-        return True
 
     @staticmethod
     def _status_level_selection() -> bool:
