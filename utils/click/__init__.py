@@ -14,7 +14,7 @@ def click_text_from_context(text: str):
     """
     boxes, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
     click_helper = Context.get_value(CONTEXT_KEY_CLICK_HELPER)
-    controller = Context.get_value(utils.controller)
+    controller = Context.get_value(utils.controller.CONTEXT_KEY_CONTROLLER)
 
     index = texts.index(text)
     point_x, point_y = click_helper.generate_target_click(
