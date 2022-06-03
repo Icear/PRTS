@@ -36,8 +36,9 @@ def click_from_context(screen_resolution: ScreenResolution, left_top_x: int, lef
     :param right_down_y: 可点击区域右下角坐标y
     """
     click_helper = Context.get_value(CONTEXT_KEY_CLICK_HELPER)
-    controller = Context.get_value(utils.controller)
+    controller = Context.get_value(utils.controller.CONTEXT_KEY_CONTROLLER)
+
     point_x, point_y = click_helper.generate_target_click(
-        screen_resolution, left_top_x, left_top_y, right_down_x, right_down_y
+        screen_resolution.create_click_zone(left_top_x, left_top_y, right_down_x, right_down_y)
     )
     controller.click(point_x, point_y)

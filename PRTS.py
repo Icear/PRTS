@@ -38,6 +38,9 @@ def initialize_global_tools():
     x, y = adb_controller.get_device_resolution()
     Context.set_value(utils.click.CONTEXT_KEY_CLICK_HELPER, utils.click.ScrennClick.ClickHelper(ScreenResolution(x, y)))
 
+    # 初始化handler状态
+    Context.set_value(utils.CONTEXT_KEY_PRTS_CURRENT_HANDLE, '')
+
 
 def initialize_handlers():
     """扫描所有handler，然后循环触发各个模块的逻辑"""
@@ -81,7 +84,9 @@ def start_rules():
             # 请求获取权限的则读取数据
             flag_module_finished = False
             logging.info(f"module {handler.__class__.__qualname__} takes control")
+            Context.set_value(utils.CONTEXT_KEY_PRTS_CURRENT_HANDLE, handler)  # 刷新Context中Handler
             handler.do_logic()
+            Context.set_value(utils.CONTEXT_KEY_PRTS_CURRENT_HANDLE, '')
             utils.ocr.PaddleOCRProvider.request_ocr_result()  # 请求刷新OCR结果
             logging.info(f"module {handler.__class__.__qualname__} released control")
         if flag_module_finished:

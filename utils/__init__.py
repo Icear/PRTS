@@ -8,6 +8,8 @@ from context import Context
 from utils.ocr.PaddleOCRProvider import request_ocr_result
 
 logger = logging.getLogger('utils')
+# TODO 日志名称不对
+CONTEXT_KEY_PRTS_CURRENT_HANDLE = 'context_key_prts_current_handle'
 
 
 class LogicFinishedException(Exception):
@@ -49,7 +51,7 @@ def roll_status_and_checker(handler, status_handler_map: dict):
             flag_status_checked = False
             for status_checker, status_handler in status_handler_map.items():
                 if status_checker():
-                    logger.info(f"start {type(handler)} handler {status_handler.__name__[len('_handler_'):]}")
+                    logger.info(f"start {type(handler).__name__} handler {status_handler.__name__[len('_handle_'):]}")
                     status_handler()
                     flag_status_checked = True
                     count_unknown_status = 0  # 重置未知状态计数
@@ -63,14 +65,14 @@ def roll_status_and_checker(handler, status_handler_map: dict):
                     # 超过2次，走异常脱离
                     raise utils.StatusUnrecognizedException()
     except utils.LogicFinishedException:
-        logger.debug(f'handler {type(handler)} reports progress finished')
+        logger.debug(f'handler {type(handler).__name__} reports progress finished')
 
 
 def roll_status(handler, status_handler_map: dict) -> bool:
     """遍历handler内的status以检查是否有匹配数据"""
     for status_checker in status_handler_map:
         if status_checker():
-            logger.info(f"{type(handler)} detects status {status_checker.__name__[len('_handler_'):]}")
+            logger.info(f"{type(handler).__name__} detects status {status_checker.__name__[len('_handle_'):]}")
             return True
     return False
 
@@ -87,7 +89,7 @@ def generate_status_handler_map(handler) -> dict:
                                                                             '_handle_' + actual_status_name)
         else:
             handler.status_handler_map[(getattr(handler, function_name))] = _default_status_handler
-    logger.info(f"total read {len(status_handler_map)} status from handler {type(handler)}")
+    logger.info(f"total read {len(status_handler_map)} status from handler {type(handler).__name__}")
     return status_handler_map
 
 
