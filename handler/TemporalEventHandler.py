@@ -20,7 +20,7 @@ class TemporalEventHandler:
         utils.roll_status_and_checker(self, self.status_handler_map)
 
     @staticmethod
-    def _status_sign_in_event():
+    def _status_sign_in_event() -> bool:
         """端午签到活动，或者所有签到活动可能都行"""
         return utils.check_keywords_from_context(['签到活动'])
 
@@ -46,7 +46,7 @@ class TemporalEventHandler:
         raise utils.StatusUnrecognizedException()
 
     @staticmethod
-    def _status_gift_received():
+    def _status_gift_received() -> bool:
         # TODO 补全检查条件
         return utils.check_keywords_from_context(['物资'])
 
