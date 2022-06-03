@@ -85,7 +85,10 @@ def start_rules():
             flag_module_finished = False
             logging.info(f"module {handler.__class__.__qualname__} takes control")
             Context.set_value(utils.CONTEXT_KEY_PRTS_CURRENT_HANDLE, handler)  # 刷新Context中Handler
-            handler.do_logic()
+            try:
+                handler.do_logic()
+            except utils.StatusUnrecognizedException:
+                logging.info(f"module {handler.__class__.__qualname__} reports unrecognized status")
             Context.set_value(utils.CONTEXT_KEY_PRTS_CURRENT_HANDLE, '')
             utils.ocr.PaddleOCRProvider.request_ocr_result()  # 请求刷新OCR结果
             logging.info(f"module {handler.__class__.__qualname__} released control")
