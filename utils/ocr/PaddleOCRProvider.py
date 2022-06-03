@@ -28,4 +28,5 @@ def request_ocr_result():
     boxes = [line[0] for line in result]
     texts = [line[1][0] for line in result]
     scores = [line[1][1] for line in result]
+    logger.debug(f"ocr result: {texts}")
     Context.set_value(utils.ocr.CONTEXT_KEY_OCR_RESULT, (boxes, texts, scores))
