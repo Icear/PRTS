@@ -11,6 +11,7 @@
 - paddleOCR
 - numpy
 - opencv
+- protobuf
 
 ## Install
 
