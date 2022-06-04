@@ -20,11 +20,12 @@ class TemporalEventHandler:
         utils.roll_status_and_checker(self, self.status_handler_map)
 
     @staticmethod
-    def _status_sign_in_event() -> bool:
+    def _status_dragon_board_festival_sign_in_event() -> bool:
         """端午签到活动，或者所有签到活动可能都行"""
-        return utils.check_keywords_from_context(['签到活动'])
+        return utils.check_keywords_from_context(['签到活动']) and utils.check_keywords_not_exists_from_context(
+            ['编队', '采购中心', '任务'])
 
-    def _handle_sign_in_event(self):
+    def _handle_dragon_board_festival_sign_in_event(self):
 
         if self.gift_received:
             # 该退出了，先重置标识符
@@ -36,11 +37,10 @@ class TemporalEventHandler:
             raise utils.LogicFinishedException()
 
         # 一般是第1、2、3这种天数的签到，所以一路遍历找对应数字然后全点一遍，触发礼物领取以后留个标记就可以退出了
-        for day in range(15):
-            if utils.check_keywords_from_context([str(day)]):
-                # 找到确实有天数写在里面，那就全点一遍，防止出错
-                utils.click.click_every_same_text_from_context(str(day))
-                return
+        if utils.check_keywords_from_context(['LOGIN', 'DAY']):
+            # 找到确实有天数写在里面，那就全点一遍，防止出错
+            utils.click.click_text_from_context('LOGIN')
+            return
 
         # 如果完全没找到的话，就G了，请求介入把
         raise utils.StatusUnrecognizedException()

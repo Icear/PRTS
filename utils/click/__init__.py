@@ -1,3 +1,5 @@
+import random
+
 import utils
 import utils.controller
 import utils.ocr
@@ -42,6 +44,7 @@ def click_every_same_text_from_context(text: str):
                 )
             )
             controller.click(point_x, point_y)  # 点击时加上随机偏移量
+            utils.sleep(random.uniform(1, 2))
     except ValueError:
         pass
 

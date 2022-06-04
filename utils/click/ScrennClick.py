@@ -23,6 +23,25 @@ class ClickZone:
         self.right_down_x = int(right_down_x)
         self.right_down_y = int(right_down_y)
 
+    def contains(self, click_zone) -> bool:
+        # 先缩放到相同分辨率
+        click_zone.scale_to_target_resolution(self.resolution)
+        # 检查是否存在包含关系，只检测完全包含
+        if self.left_up_x <= click_zone.left_up_x \
+                and self.left_up_y <= click_zone.left_up_y \
+                and self.right_down_x >= click_zone.right_down_x \
+                and self.right_down_y >= click_zone.right_down_y:
+            return True
+
+        return False
+
+    def scale_to_target_resolution(self, target_resolution: ScreenResolution):
+        """将当前ClickZone缩放到目标分辨率"""
+        self.left_up_x = self.left_up_x / self.resolution.length * target_resolution.length
+        self.left_up_y = self.left_up_y / self.resolution.width * target_resolution.width
+        self.right_down_x = self.right_down_x / self.resolution.length * target_resolution.length
+        self.right_down_y = self.right_down_y / self.resolution.width * target_resolution.width
+
 
 class ClickHelper:
     def __init__(self, current_screen_resolution: ScreenResolution):

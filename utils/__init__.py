@@ -39,6 +39,15 @@ def check_keywords_from_context(keyword_list):
     return True
 
 
+def check_keywords_not_exists_from_context(keyword_list):
+    """检查目标关键词是否不存在于Context中"""
+    _, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
+    for word in keyword_list:
+        if word in texts:
+            return False
+    return True
+
+
 def roll_status_and_checker(handler, status_handler_map: dict):
     """遍历handler内的status与handle并调用"""
     # 调用status_checker确定当前状态，然后根据状态执行动作，不再为每个关卡指定时间定时

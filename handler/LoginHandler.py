@@ -66,7 +66,7 @@ class LoginHandler:
         每日签到，主界面
         :return:
         """
-        return utils.check_keywords_from_context(['已签到', '常规配给'])
+        return utils.check_keywords_from_context(['常规配给'])
 
     @staticmethod
     def _handle_daily_checkin():
