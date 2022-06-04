@@ -170,7 +170,7 @@ class RecruitHandler:
         self.logger.info(f"read best combo: {combo}, expect to get {result_level} star operator")
 
         # 处理高资情况
-        if result_level >= 6 or '资深干员' in combo or '资深干员' == combo:
+        if result_level >= 5:
             # 跳过这个槽位
             self.slots_touchable[self.current_slot] = False
             # 点击返回
