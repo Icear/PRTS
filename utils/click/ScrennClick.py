@@ -37,10 +37,11 @@ class ClickZone:
 
     def scale_to_target_resolution(self, target_resolution: ScreenResolution):
         """将当前ClickZone缩放到目标分辨率"""
-        self.left_up_x = self.left_up_x / self.resolution.length * target_resolution.length
-        self.left_up_y = self.left_up_y / self.resolution.width * target_resolution.width
-        self.right_down_x = self.right_down_x / self.resolution.length * target_resolution.length
-        self.right_down_y = self.right_down_y / self.resolution.width * target_resolution.width
+        self.left_up_x = int(self.left_up_x / self.resolution.length * target_resolution.length)
+        self.left_up_y = int(self.left_up_y / self.resolution.width * target_resolution.width)
+        self.right_down_x = int(self.right_down_x / self.resolution.length * target_resolution.length)
+        self.right_down_y = int(self.right_down_y / self.resolution.width * target_resolution.width)
+        self.resolution = target_resolution
 
 
 class ClickHelper:

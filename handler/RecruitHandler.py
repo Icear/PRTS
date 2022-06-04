@@ -157,7 +157,7 @@ class RecruitHandler:
         :return:
         """
         # 检查状态是否正确
-        return utils.check_keywords_from_context(['招募时限', '招募说明', '职业需求', '招募预算'])
+        return utils.check_keywords_from_context(['招募时限', '职业需求', '招募预算'])
 
     def _handle_choose_operator_tag(self):
         boxes, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
@@ -278,8 +278,8 @@ class RecruitHandler:
         for combo in result_map.keys():
             # 扫描所有干员，检查匹配的干员，并且把期望中最小星级数记录到result_map里
             for operator in self.hr_list:
-                # 跳过1星干员，避免干扰
-                if operator['level'] < 2:
+                # 跳过1星和6星干员，避免干扰
+                if operator['level'] < 2 or operator['level'] > 5:
                     continue
                 # 处理一个tag被识别成str的问题
                 if isinstance(combo, str):
