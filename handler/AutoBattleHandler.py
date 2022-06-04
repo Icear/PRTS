@@ -9,13 +9,15 @@ from utils.click.ScrennClick import ScreenResolution
 from utils.ocr.PaddleOCRProvider import request_ocr_result
 
 logger = logging.getLogger('AutoBattleHandler')
+CONTEXT_KEY_CONFIGURATION_AUTO_BATTLE_HANDLER_ALLOW_USE_MEDICINE = \
+    'context_key_configuration_auto_battle_handler_allow_use_medicine'
 
 
 class AutoBattleHandler:
 
     def __init__(self):
         self.auto_battle = ArknightsAutoBattle(
-            allow_use_medicine=False
+            allow_use_medicine=Context.get_value(CONTEXT_KEY_CONFIGURATION_AUTO_BATTLE_HANDLER_ALLOW_USE_MEDICINE, False)
         )
         self.last_trigger_time = time.time() - 135 * 5 * 60 - 100  # 用于记录上一次触发的时间
 

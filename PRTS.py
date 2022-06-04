@@ -10,11 +10,13 @@ handler:
 - 它们都需要
 
 """
+import argparse
 import logging
 import os
 import sys
 import time
 
+import handler.AutoBattleHandler
 import utils.controller
 import utils.controller.ADBController
 import utils.ocr.PaddleOCRProvider
@@ -40,6 +42,10 @@ def initialize_global_tools():
 
     # 初始化handler状态
     Context.set_value(utils.CONTEXT_KEY_PRTS_CURRENT_HANDLE, '')
+
+    # 保存全局变量
+    Context.set_value(handler.AutoBattleHandler.CONTEXT_KEY_CONFIGURATION_AUTO_BATTLE_HANDLER_ALLOW_USE_MEDICINE,
+                      args.medicine)
 
 
 def initialize_handlers():
@@ -103,6 +109,12 @@ def main():
     initialize_handlers()
     start_rules()
 
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-m', '--medicine',
+                    help='allow using medicine to restore sanity, default false / 允许使用体力药水来恢复体力，默认为否',
+                    default=False, action='store_true')
+args = parser.parse_args()
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO,

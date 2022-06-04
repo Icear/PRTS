@@ -170,7 +170,7 @@ class RecruitHandler:
         self.logger.info(f"read best combo: {combo}, expect to get {result_level} star operator")
 
         # 处理高资情况
-        if result_level >= 6:
+        if result_level >= 6 or '资深干员' in combo or '资深干员' == combo:
             # 跳过这个槽位
             self.slots_touchable[self.current_slot] = False
             # 点击返回
@@ -313,7 +313,9 @@ class RecruitHandler:
     def _get_slot_index(self, left_up_x: int, left_up_y: int, right_bottom_x: int, right_bottom_y: int) -> int:
         """根据传入的矩形查找其所属的区域"""
         click_helper = Context.get_value(utils.click.CONTEXT_KEY_CLICK_HELPER)
-        target_click_zone = click_helper.generate_target_click(left_up_x, left_up_y, right_bottom_x, right_bottom_y)
+        target_click_zone = click_helper.current_screen_resolution.create_click_zone(
+            left_up_x, left_up_y, right_bottom_x, right_bottom_y
+        )
         for index, zone in enumerate(self.slots_location):
             if zone.contains(target_click_zone):
                 return index
