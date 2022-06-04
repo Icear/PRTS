@@ -19,7 +19,7 @@ git clone https://github.com/Icear/PRTS
 cd PRTS
 pip3 install -r ./requirements.txt
 ```
-Note: Before processing dependencies, you need "Microsoft C++ Build Tools" installed in your computer. Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
+Note: Before processing dependencies, you need Microsoft Visual C++ 14.0 or greater is installed in your computer. Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
 
 ## Pre-setup
 
