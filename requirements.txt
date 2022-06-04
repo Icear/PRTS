@@ -1,5 +1,4 @@
 numpy
 opencv
-pytorch
-paddleocr
+paddleocr>=2.0.1
 paddlepaddle

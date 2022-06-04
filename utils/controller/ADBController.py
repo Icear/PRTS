@@ -6,7 +6,6 @@ import subprocess
 
 from utils.controller.Controller import Controller
 
-
 def exec_run(command):
     with subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as pipe:
         try:
