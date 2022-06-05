@@ -24,7 +24,9 @@ class NetworkIssueHandler:
                 return
             # 检查是否匹配到关键词
             _, texts, _ = value
-            if self._check_keyword(['网络连接中断'], texts) or self._check_keyword(['数据已更新，即将进行同步'], texts):
+            if self._check_keyword(['网络连接中断'], texts) \
+                    or self._check_keyword(['数据已更新，即将进行同步'], texts)\
+                    or self._check_keyword(['数据同步失败，请重新登录'], texts):
                 # 有handler并且不是自己，中断掉它的逻辑走标准handle流程接管控制
                 self.logger.info('intercept from ocr result, force finish current logic')
                 raise utils.LogicFinishedException()
@@ -64,6 +66,19 @@ class NetworkIssueHandler:
         # 点击确认
         utils.click.click_from_context(
             ScreenResolution(1920, 1080), 812, 710, 1123, 776
+        )
+        utils.sleep(random.uniform(5, 15))
+        raise utils.LogicFinishedException()
+
+    @staticmethod
+    def _status_data_sync_failed() -> bool:
+        return utils.check_keywords_from_context(['数据同步失败，请重新登录'])
+
+    @staticmethod
+    def _handle_data_sync_failed():
+        # 点击确认
+        utils.click.click_from_context(
+            ScreenResolution(1600, 900), 620, 589, 1035, 645
         )
         utils.sleep(random.uniform(5, 15))
         raise utils.LogicFinishedException()
