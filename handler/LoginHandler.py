@@ -18,7 +18,8 @@ class LoginHandler:
         self.status_handler_map = utils.generate_status_handler_map(self)
 
     def can_handle(self) -> bool:
-        return utils.roll_status(self, self.status_handler_map)
+        # 跳过main screen的触发入口，只有其它状态可以作为触发位置
+        return utils.roll_status(self, self.status_handler_map.copy().pop(self._status_main_screen))
 
     def do_logic(self):
         utils.roll_status_and_checker(self, self.status_handler_map)
