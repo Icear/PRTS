@@ -17,7 +17,8 @@ class AutoBattleHandler:
 
     def __init__(self):
         self.auto_battle = ArknightsAutoBattle(
-            allow_use_medicine=Context.get_value(CONTEXT_KEY_CONFIGURATION_AUTO_BATTLE_HANDLER_ALLOW_USE_MEDICINE, False)
+            allow_use_medicine=Context.get_value(CONTEXT_KEY_CONFIGURATION_AUTO_BATTLE_HANDLER_ALLOW_USE_MEDICINE,
+                                                 False)
         )
         self.last_trigger_time = time.time() - 135 * 5 * 60 - 100  # 用于记录上一次触发的时间
 
@@ -178,7 +179,8 @@ class ArknightsAutoBattle:
     @staticmethod
     def _status_sanity_restore_medicine() -> bool:
         # 检查状态是否正确
-        return utils.check_keywords_from_context(['使用药剂恢复'])
+        return utils.check_keywords_from_context(['使用药剂恢复']) and utils.check_keywords_not_exists_from_context(
+            ['是否花费1至纯源石兑换135理智？', '+135'])
 
     def _handle_sanity_restore_medicine(self):
         """
@@ -196,3 +198,23 @@ class ArknightsAutoBattle:
             ScreenResolution(1920, 980), 1509, 745, 1609, 805
         )
         utils.sleep(random.uniform(3, 4))  # 等待游戏响应
+
+    @staticmethod
+    def _status_sanity_restore_stone() -> bool:
+        # 检查状态是否正确
+        return utils.check_keywords_from_context(
+            ['是否花费1至纯源石兑换135理智？', '+135'])
+
+    @staticmethod
+    def _handle_sanity_restore_stone():
+        """
+        选择是否使用源石的界面，取消并结束
+        """
+
+        # 执行逻辑
+        utils.click.click_from_context(
+            ScreenResolution(1600, 900), 890, 690, 1050, 753
+        )
+        utils.sleep(random.uniform(3, 4))  # 等待游戏响应
+        raise utils.LogicFinishedException()
+
