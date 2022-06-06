@@ -16,10 +16,12 @@ class LoginHandler:
     def __init__(self):
         self.logger = logging.getLogger('LoginHandler')
         self.status_handler_map = utils.generate_status_handler_map(self)
+        # 跳过main screen的触发入口，只有其它状态可以作为触发位置
+        self.detect_status_handler_map = self.status_handler_map.copy()
+        self.detect_status_handler_map.pop(self._status_main_screen)
 
     def can_handle(self) -> bool:
-        # 跳过main screen的触发入口，只有其它状态可以作为触发位置
-        return utils.roll_status(self, self.status_handler_map.copy().pop(self._status_main_screen))
+        return utils.roll_status(self, self.detect_status_handler_map)
 
     def do_logic(self):
         utils.roll_status_and_checker(self, self.status_handler_map)
