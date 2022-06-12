@@ -140,6 +140,8 @@ class RecruitHandler:
     def _handle_start_recruit(self):
         # 读取槽位位置，记录数据
         boxes, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
+        click_helper = Context.get_value(utils.click.CONTEXT_KEY_CLICK_HELPER)
+
         for index, text in enumerate(texts):
             if '开始招募干员' == text:
                 # 找到位置，检查slot对应
@@ -150,7 +152,12 @@ class RecruitHandler:
                     continue
                 # 可以选取的
                 self.current_slot = slot_index
-                utils.click.click_text_from_context('开始招募干员')
+                self.logger.info(f"choose slot {self.current_slot}")
+                # 手动点击对应位置
+                utils.click.click_from_context(
+                    click_helper.current_screen_resolution, boxes[index][0][0], boxes[index][0][1], boxes[index][2][0],
+                    boxes[index][2][1]
+                )
                 utils.sleep(random.uniform(2, 4))  # 等待游戏响应
                 return
         # 全部都不能点，返回主界面
@@ -198,6 +205,7 @@ class RecruitHandler:
         # 处理高资情况
         if result_level >= 5:
             # 跳过这个槽位
+            self.logger.info(f"skip current slot ({self.current_slot}) process, roll back")
             self.slots_touchable[self.current_slot] = False
             # 点击返回
             utils.click.click_from_context(
