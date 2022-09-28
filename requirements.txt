@@ -2,4 +2,4 @@ numpy
 opencv-python
 paddleocr>=2.0.1
 paddlepaddle
-protobuf==3.19.0
+protobuf>=3.19.0
