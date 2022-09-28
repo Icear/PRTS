@@ -23,7 +23,7 @@ class AutoBattleHandler:
 
     def can_handle(self) -> bool:
         # 如果上次触发时间到现在体力不满足一半，则暂时不触发
-        if time.time() - self.last_trigger_time < 65 * 5 * 60:
+        if time.time() - self.last_trigger_time < 30 * 5 * 60:
             return False
         return self.auto_battle.try_detect_scene()
 
