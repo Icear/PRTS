@@ -12,7 +12,7 @@ class NetworkIssueHandler:
     def __init__(self):
         self.status_handler_map = utils.generate_status_handler_map(self)
         self.logger = logging.getLogger('NetworkIssueHandler')
-        Context.register_value_change_callback(utils.ocr.CONTEXT_KEY_OCR_RESULT, self._handle_context_call_back)
+        # Context.register_value_change_callback(utils.ocr.CONTEXT_KEY_OCR_RESULT, self._handle_context_call_back)
 
     def _handle_context_call_back(self, key, value):
         # 检查value里是否包含关键词，出现的话就中止掉现在的逻辑，然后走正常流程让当前的Handler接管
