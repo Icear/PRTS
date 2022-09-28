@@ -17,14 +17,13 @@ class AutoBattleHandler:
 
     def __init__(self):
         self.auto_battle = ArknightsAutoBattle(
-            allow_use_medicine=Context.get_value(CONTEXT_KEY_CONFIGURATION_AUTO_BATTLE_HANDLER_ALLOW_USE_MEDICINE,
-                                                 False)
+            allow_use_medicine=Context.get_value(CONTEXT_KEY_CONFIGURATION_AUTO_BATTLE_HANDLER_ALLOW_USE_MEDICINE, False)
         )
         self.last_trigger_time = time.time() - 135 * 5 * 60 - 100  # 用于记录上一次触发的时间
 
     def can_handle(self) -> bool:
         # 如果上次触发时间到现在体力不满足一半，则暂时不触发
-        if time.time() - self.last_trigger_time < 65 * 5 * 60:
+        if time.time() - self.last_trigger_time < 30 * 5 * 60:
             return False
         return self.auto_battle.try_detect_scene()
 
@@ -180,7 +179,7 @@ class ArknightsAutoBattle:
     def _status_sanity_restore_medicine() -> bool:
         # 检查状态是否正确
         return utils.check_keywords_from_context(['使用药剂恢复']) and utils.check_keywords_not_exists_from_context(
-            ['是否花费1至纯源石兑换135理智？', '+135'])
+            ['是否花费1至纯源石兑换135理智？', '+135', '至纯源石不足']) 
 
     def _handle_sanity_restore_medicine(self):
         """
@@ -204,7 +203,6 @@ class ArknightsAutoBattle:
         # 检查状态是否正确
         return utils.check_keywords_from_context(
             ['是否花费1至纯源石兑换135理智？', '+135'])
-
     @staticmethod
     def _handle_sanity_restore_stone():
         """
@@ -218,3 +216,21 @@ class ArknightsAutoBattle:
         utils.sleep(random.uniform(3, 4))  # 等待游戏响应
         raise utils.LogicFinishedException()
 
+    @staticmethod
+    def _status_sanity_restore_no_stone() -> bool:
+        # 检查状态是否正确
+        return  utils.check_keywords_from_context(['至纯源石不足'])
+
+
+    @staticmethod
+    def _handle_sanity_restore_no_stone():
+        """
+        选择是否使用源石的界面，取消并结束
+        """
+
+        # 执行逻辑
+        utils.click.click_from_context(
+            ScreenResolution(1600, 900), 100, 690, 300, 753
+        )
+        utils.sleep(random.uniform(3, 4))  # 等待游戏响应
+        raise utils.LogicFinishedException()

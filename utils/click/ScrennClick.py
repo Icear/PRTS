@@ -43,7 +43,6 @@ class ClickZone:
         self.right_down_y = int(self.right_down_y / self.resolution.width * target_resolution.width)
         self.resolution = target_resolution
 
-
 class ClickHelper:
     def __init__(self, current_screen_resolution: ScreenResolution):
         """记录当前的屏幕分辨率"""

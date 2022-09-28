@@ -27,20 +27,20 @@ class TemporalEventHandler:
 
     def _handle_dragon_board_festival_sign_in_event(self):
 
-        if self.gift_received:
-            # 该退出了，先重置标识符
-            self.gift_received = False
-            utils.click.click_from_context(
-                ScreenResolution(1920, 1080), 1831, 134, 1869, 170
-            )
-            utils.sleep(random.uniform(2, 4))
-            raise utils.LogicFinishedException()
+        # if self.gift_received:
+        # 该退出了，先重置标识符
+        self.gift_received = False
+        utils.click.click_from_context(
+            ScreenResolution(1920, 1080), 1831, 134, 1869, 170
+        )
+        utils.sleep(random.uniform(2, 4))
+        raise utils.LogicFinishedException()
 
-        # 一般是第1、2、3这种天数的签到，所以一路遍历找对应数字然后全点一遍，触发礼物领取以后留个标记就可以退出了
-        if utils.check_keywords_from_context(['LOGIN', 'DAY']):
-            # 找到确实有天数写在里面，那就全点一遍，防止出错
-            utils.click.click_text_from_context('LOGIN')
-            return
+        # # 一般是第1、2、3这种天数的签到，所以一路遍历找对应数字然后全点一遍，触发礼物领取以后留个标记就可以退出了
+        # if utils.check_keywords_from_context(['LOGIN', 'DAY']):
+        #     # 找到确实有天数写在里面，那就全点一遍，防止出错
+        #     utils.click.click_text_from_context('LOGIN')
+        #     return
 
         # 如果完全没找到的话，就G了，请求介入把
         raise utils.StatusUnrecognizedException()

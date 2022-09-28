@@ -45,23 +45,27 @@ class MissionHandler:
 
     @staticmethod
     def _status_mission():
-        return utils.check_keywords_from_context(['周常任务']) or utils.check_keywords_from_context(['t24日常任务'])
+        return utils.check_keywords_from_context(['周常任务']) or utils.check_keywords_from_context(['日常任务'])
 
     def _handle_mission(self):
         # 直接在这里把两个地方的任务都领取掉，因为没办法区分
 
         # 查看是否可以做个人任务
-        if utils.check_keywords_from_context(['收集全部']):
-            self.logger.info("click collect all button")
-            # 开始点击
-            utils.click.click_text_from_context('收集全部')
-            utils.sleep(random.uniform(6, 10))
-            return
-        else:
-            # 没得点，没有任务能做，更新标记，切换到2号位置
-            self.logger.info("no daily mission completed, skip")
-            self.slot_finished[self.current_work_slot] = True
-            self.current_work_slot = 1
+        if self.current_work_slot == 0 and not self.slot_finished[self.current_work_slot]:
+            # 点击切换到个人任务上
+            # utils.click.click_text_from_context('日常任务')
+            # utils.sleep(random.uniform(1, 2))
+            if utils.check_keywords_from_context(['收集全部']):
+                self.logger.info("click collect all button")
+                # 开始点击
+                utils.click.click_text_from_context('收集全部')
+                utils.sleep(random.uniform(6, 10))
+                return
+            else:
+                # 没得点，没有任务能做，更新标记，切换到2号位置
+                self.logger.info("no daily mission completed, skip")
+                self.slot_finished[self.current_work_slot] = True
+                self.current_work_slot = 1
 
         # 查看是否可以做周常任务
         if self.current_work_slot == 1 and not self.slot_finished[self.current_work_slot]:

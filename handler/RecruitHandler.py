@@ -48,6 +48,9 @@ class RecruitHandler:
         # 用于记录上一次触发的时间
         self.last_trigger_time = time.time() - 135 * 5 * 60 - 100
 
+        # OCR重试次数记录
+        self.count_retry = 0
+
     def can_handle(self) -> bool:
         # 如果上次触发时间到现在不满9个小时，则暂时不触发
         if time.time() - self.last_trigger_time < 9 * 60 * 60:
@@ -77,6 +80,9 @@ class RecruitHandler:
             True,
             True
         ]
+
+        # 刷新重试状态
+        self.count_retry = 0
 
     @staticmethod
     def _status_recruit_finished() -> bool:
@@ -134,6 +140,8 @@ class RecruitHandler:
     def _handle_start_recruit(self):
         # 读取槽位位置，记录数据
         boxes, texts, _ = Context.get_value(utils.ocr.CONTEXT_KEY_OCR_RESULT)
+        click_helper = Context.get_value(utils.click.CONTEXT_KEY_CLICK_HELPER)
+
         for index, text in enumerate(texts):
             if '开始招募干员' == text:
                 # 找到位置，检查slot对应
@@ -144,7 +152,12 @@ class RecruitHandler:
                     continue
                 # 可以选取的
                 self.current_slot = slot_index
-                utils.click.click_text_from_context('开始招募干员')
+                self.logger.info(f"choose slot {self.current_slot}")
+                # 手动点击对应位置
+                utils.click.click_from_context(
+                    click_helper.current_screen_resolution, boxes[index][0][0], boxes[index][0][1], boxes[index][2][0],
+                    boxes[index][2][1]
+                )
                 utils.sleep(random.uniform(2, 4))  # 等待游戏响应
                 return
         # 全部都不能点，返回主界面
@@ -165,6 +178,26 @@ class RecruitHandler:
         # 从识别到的文字中筛选出公招标签
         available_tag_list = list(filter(lambda text: text in self.tag_list, texts))
         self.logger.info(f"read tags: {available_tag_list}")
+
+        if len(available_tag_list) < 5:
+            self.count_retry += 1
+            if self.count_retry > 5:
+                self.logger.info(f"ocr still unfinished, mark slot as not process")
+                # 跳过这个槽位
+                self.slots_touchable[self.current_slot] = False
+                # 点击返回
+                utils.click.click_from_context(
+                    ScreenResolution(1920, 1080), 1392, 952, 1527, 990
+                )
+                utils.sleep(random.uniform(2, 5))
+                return
+            # 进行重试
+            self.logger.info(f"ocr result not complete, retrying...{self.count_retry}")
+            utils.sleep(random.uniform(2, 5))
+            return
+        # 识别正常
+        self.count_retry = 0  # 重置retry计数
+
         # 根据有效的公招标签，检查是否有组合能够筛选出四星以上的干员，有就侧重点击，否则空tag结束
         combo, result_level = self._compute_best_tags(available_tag_list)
         self.logger.info(f"read best combo: {combo}, expect to get {result_level} star operator")
@@ -172,6 +205,7 @@ class RecruitHandler:
         # 处理高资情况
         if result_level >= 5:
             # 跳过这个槽位
+            self.logger.info(f"skip current slot ({self.current_slot}) process, roll back")
             self.slots_touchable[self.current_slot] = False
             # 点击返回
             utils.click.click_from_context(
